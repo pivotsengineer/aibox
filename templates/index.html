@@ -13,27 +13,26 @@
     <script>
         let websocket = null;
         const videoElement = document.getElementById('video');
-        let imageBuffer = [];
         const onCrashDelay = 3000;
         const websocketUrl = 'ws://192.168.0.124:8765';
-
-        function webSocketsSetup(init) {
+        const webSocketsSetup = function () {
             if (websocket) {
                 websocket.close(); 
                 websocket.onclose = function() {
                     console.log('Previous WebSocket connection closed.');
-                    setTimeout(init, onCrashDelay);
+                    setTimeout(init, onCrashDelay).bind(this);
+                };
+                websocket.onopen = function () {
+                    console.log('WebSocket connection established.');
                 };
             } else {
-                setTimeout(init, onCrashDelay);
+                setTimeout(init, onCrashDelay).bind(this);
             }
         }
         const init = function () {
+            let imageBuffer = [];
             websocket = new WebSocket(websocketUrl);
             websocket.binaryType = 'blob';
-            websocket.onopen = function () {
-                console.log('WebSocket connection established.');
-            };
             websocket.onmessage = function(event) {
                 imageBuffer.push(event.data);
 
@@ -49,11 +48,11 @@
             };
             setInterval(() => {
                 if (websocket.readyState === WebSocket.OPEN) {
-                    websocket.send('ping'); 
+                    websocket.send('wake up!'); 
                 }
             }, 1000);
         }
-        webSocketsSetup(init);
+        webSocketsSetup();
     </script>
 </body>
 </html>
