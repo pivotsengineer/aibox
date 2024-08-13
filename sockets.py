@@ -18,8 +18,6 @@ def cleanUp(process):
 
     print("Process terminated")
 
-    video_stream(None, None)
-
 async def video_stream(websocket, path):
     command = [
         'libcamera-vid',
@@ -35,7 +33,6 @@ async def video_stream(websocket, path):
     process = None
 
     try:
-        cleanUp(process)
 
         # Start the process once
         process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
