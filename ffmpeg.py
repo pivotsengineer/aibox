@@ -2,8 +2,6 @@ import asyncio
 import websockets
 import subprocess
 
-app = Flask(__name__)
-
 def video_stream():
     # Use ffmpeg to capture video and stream it as MJPEG
     command = [
