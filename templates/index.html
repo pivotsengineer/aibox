@@ -10,8 +10,8 @@
     <img id="video" src="" alt="Video stream not available">
     
     <script>
+        let websocket = null;
         const videoElement = document.getElementById('video');
-        const websocket = null;
         const setupFn = function setup() {
             
             if (websocket) { websocket.close(); }
