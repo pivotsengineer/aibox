@@ -18,7 +18,7 @@ def cleanUp(process):
 
     print("Process terminated")
 
-    video_stream(None)
+    video_stream(None, None)
 
 async def video_stream(websocket, path):
     command = [
