@@ -16,8 +16,6 @@ def cleanUp(process):
     restartPipewireProcess = subprocess.Popen(restartPipewireCommand, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     restartPipewireProcess.terminate()
 
-    print("Process terminated")
-
 async def video_stream(websocket, path):
     command = [
         'libcamera-vid',
