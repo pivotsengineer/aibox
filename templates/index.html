@@ -15,7 +15,6 @@
         const videoElement = document.getElementById('video');
         let imageBuffer = [];
         const setupFn = function setup() {
-            if (websocket) { websocket.close(); }
             websocket = new WebSocket('ws://192.168.0.124:8765');
             websocket.binaryType = 'blob';
             websocket.onmessage = function(event) {
