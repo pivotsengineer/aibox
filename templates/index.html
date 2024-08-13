@@ -10,12 +10,13 @@
     <img id="video" src="" alt="Video stream not available">
     
     <script>
-        const videoElement = document.getElementById('video');
-        const websocket = new WebSocket('ws://192.168.0.124:8765');
-        let imageBuffer = [];
-        websocket.binaryType = 'blob';
-
         function setup() {
+            const videoElement = document.getElementById('video');
+            const websocket = new WebSocket('ws://192.168.0.124:8765');
+            let imageBuffer = [];
+            
+            websocket.binaryType = 'blob';
+
             websocket.onmessage = function(event) {
                 imageBuffer.push(event.data);
 
