@@ -17,14 +17,17 @@ async def video_stream(websocket, path):
 
     while True:
         # Read MJPEG data from libcamera-vid
-        frame = process.stdout.read(1024 * 64)  # Read a chunk of data
-
+        frame = process.stdout.read(1024 * 24)  # Read a chunk of data
         if not frame:
             print('No frame data received')
             continue
-
         # Send the frame over the WebSocket
-        await websocket.send(frame)
+        try:
+            await websocket.send(frame)
+            await websocket.recv()
+        except websockets.ConnectionClosedError as e:
+            print(f'WebSocket connection closed: {e}')
+            break
 
 # Start the WebSocket server
 async def main():
