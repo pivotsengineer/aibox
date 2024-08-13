@@ -6,9 +6,9 @@ async def video_stream(websocket, path):
     command = [
         'libcamera-vid',
         '--codec', 'mjpeg',
-        '--width', '640',
-        '--height', '480',
-        '--framerate', '30',
+        '--width', '320',
+        '--height', '240',
+        '--framerate', '20',
         '--inline',
         '-o', '-'  # Output to stdout
     ]
@@ -40,7 +40,7 @@ async def video_stream(websocket, path):
                 start_index = buffer.find(b'\xFF\xD8')
                 end_index = buffer.find(b'\xFF\xD9')
 
-            await asyncio.sleep(0.1)  # Adjust delay as needed
+            await asyncio.sleep(0.02)  # Adjust delay as needed
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
