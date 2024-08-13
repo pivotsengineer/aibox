@@ -31,6 +31,10 @@ async def video_stream(websocket, path):
                     frame = buffer[start:end]
                     buffer = buffer[end:]  # Remove the processed frame from the buffer
 
+                    if not frame:
+                        print('no frame')
+                        break
+
                     # Send the frame over the WebSocket
                     await websocket.send(frame)
                 else:
