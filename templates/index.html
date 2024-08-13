@@ -16,10 +16,10 @@
         const onCrashDelay = 2000;
         const websocketUrl = 'ws://192.168.0.124:8765';
         const webSocketsSetup = function () {
-            if (websocket === null) {
+            if (websocket !== null) {
                 websocket.onclose = function () {
                     console.log('Previous WebSocket connection closed.');
-                    init();
+                    return init();
                 };
                 websocket.onopen = function () {
                     console.log('WebSocket connection established.');
@@ -38,8 +38,8 @@
                     imageBuffer.push(event.data);
                     const blob = new Blob(imageBuffer, { type: 'image/jpeg' });
                     const url = URL.createObjectURL(blob);
-                    const videoUrlTimout = setTimeout(() => videoElement.src = url, 500);
-                    const revokeObjectURLTimout = setTimeout(() => URL.revokeObjectURL(url), 10000);
+                    if(url) { videoElement.src = url; }
+                    setTimeout(() => URL.revokeObjectURL(url), 10000);
                 }
             };
             websocket.onerror = function(error) {
