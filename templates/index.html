@@ -14,30 +14,37 @@
         let websocket = null;
         const videoElement = document.getElementById('video');
         let imageBuffer = [];
+
+        function setupWebSocket() {
+            if (websocket) {
+                websocket.close(); 
+                websocket.onclose = function() {
+                    console.log('Previous WebSocket connection closed.');
+                    setTimeout(setupFn, 5000);
+                };
+            } else {
+                setTimeout(setupFn, 5000);
+            }
+        }
         const setupFn = function setup() {
             websocket = new WebSocket('ws://192.168.0.124:8765');
             websocket.binaryType = 'blob';
+            websocket.onopen = function() {
+                console.log('WebSocket connection established.');
+            };
             websocket.onmessage = function(event) {
                 imageBuffer.push(event.data);
 
                 const blob = new Blob(imageBuffer, { type: 'image/jpeg' });
                 const url = URL.createObjectURL(blob);
+                
+                document.getElementById('video').src = url;
 
-                videoElement.onload = () => {
-                    URL.revokeObjectURL(videoElement.src);
-                    imageBuffer = [];
-                };
-                videoElement.src = url;
+                setTimeout(() => URL.revokeObjectURL(url), 10000);
             };
 
             websocket.onerror = function(error) {
                 console.error('WebSocket error:', error);
-                setTimeout(setupFn, 5000);
-            };
-
-            websocket.onclose = function() {
-                console.log('WebSocket connection closed. Reconnecting...');
-                setTimeout(setupFn, 5000);
             };
 
             setInterval(() => {
@@ -46,7 +53,7 @@
                 }
             }, 1000);
         }
-        setupFn();
+        setupWebSocket();
     </script>
 </body>
 </html>
