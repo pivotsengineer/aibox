@@ -2,6 +2,9 @@ import asyncio
 import websockets
 import subprocess
 
+def getChunk(buffer, chunkSize):
+
+
 async def video_stream(websocket, path):
     command = [
         'libcamera-vid',
