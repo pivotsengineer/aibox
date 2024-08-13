@@ -3,16 +3,19 @@ import websockets
 import subprocess
 
 def cleanUp(process):
-    process.terminate()  # Ensure the process is terminated
-    process.wait()  # Wait for the process to terminate
-    restartPipewireProcess = subprocess.Popen(restartPipewireCommand, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    restartPipewireProcess.wait()
     # to stop left overs from the camera processes
     restartPipewireCommand = [
         'sudo', 'pkill', 'pipewire', 
         '&', 
         'sudo', 'pipewire'
     ]
+    if process:
+        process.terminate()  # Ensure the process is terminated
+        process.wait()  # Wait for the process to terminate
+
+    restartPipewireProcess = subprocess.Popen(restartPipewireCommand, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    restartPipewireProcess.terminate()
+    
     print("Process terminated")
 
 async def video_stream(websocket, path):
