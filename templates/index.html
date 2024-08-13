@@ -17,11 +17,11 @@
         const websocketUrl = 'ws://192.168.0.124:8765';
         const webSocketsSetup = function () {
             if (websocket !== null) {
-                websocket.onclose = function () {
+                websocket.onclose = () => {
                     console.log('Previous WebSocket connection closed.');
                     return init();
                 };
-                websocket.onopen = function () {
+                websocket.onopen = () => {
                     console.log('WebSocket connection established.');
                 };
                 websocket.close(); 
