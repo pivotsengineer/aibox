@@ -17,7 +17,8 @@
         let revokeTimer;
         let rebootTimer;
         const myrevoke = (url) => {
-            if(url) URL.revokeObjectURL(url);
+            if(!url) return;
+            URL.revokeObjectURL(url);
         }
         const initWebSocket = () => {
             const self = this;
