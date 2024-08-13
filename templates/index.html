@@ -14,18 +14,18 @@
         let websocket = null;
         const videoElement = document.getElementById('video');
         let imageBuffer = [];
-        const onCrashDelay = 5000;
+        const onCrashDelay = 3000;
         const websocketUrl = 'ws://192.168.0.124:8765';
 
-        function webSocketsSetup(setupFn) {
+        function webSocketsSetup(init) {
             if (websocket) {
                 websocket.close(); 
                 websocket.onclose = function() {
                     console.log('Previous WebSocket connection closed.');
-                    setTimeout(setupFn, onCrashDelay);
+                    setTimeout(init, onCrashDelay);
                 };
             } else {
-                setTimeout(setupFn, onCrashDelay);
+                setTimeout(init, onCrashDelay);
             }
         }
         const init = function () {
@@ -53,7 +53,7 @@
                 }
             }, 1000);
         }
-        webSocketsSetup(setupFn);
+        webSocketsSetup(init);
     </script>
 </body>
 </html>
