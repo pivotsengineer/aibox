@@ -18,37 +18,36 @@
             websocket = new WebSocket(websocketUrl);
             websocket.binaryType = 'blob';
             
-            websocket.onopen = function() {
+            websocket.onopen = () => {
                 console.log('WebSocket connection established.');
             };
             
-            websocket.onmessage = function(event) {
+            websocket.onmessage = (event) => {
                 if(event.data instanceof Blob) {
                     const blob = new Blob([event.data], { type: 'image/jpeg' });
                     const url = URL.createObjectURL(blob);
                     videoElement.src = url;
-                    setTimeout(() => URL.revokeObjectURL(url), 500); // Cleanup URL after 10 seconds
+                    setTimeout(() => URL.revokeObjectURL(url), 10000); // Cleanup URL after 10 seconds
                 }
             };
 
-            websocket.onerror = function(error) {
+            websocket.onerror = (error) => {
                 console.error('WebSocket error:', error);
             };
 
-            websocket.onclose = function() {
+            websocket.onclose = () => {
                 console.log('WebSocket connection closed. Reconnecting...');
-                setTimeout(initWebSocket, 2000); // Reconnect after 2 seconds
             };
         };
 
         initWebSocket();
         
-        // Send a "ping" to the server every 2 seconds to keep the connection alive
-        // setInterval(() => {
-        //     if (websocket && websocket.readyState === WebSocket.OPEN) {
-        //         websocket.send('ping');
-        //     }
-        // }, 2000);
+        // Send a "ping" to the server every 30 seconds to keep the connection alive
+        setInterval(() => {
+            if (websocket && websocket.readyState === WebSocket.OPEN) {
+                websocket.send('ping');
+            }
+        }, 30000);
 
     </script>
 </body>
