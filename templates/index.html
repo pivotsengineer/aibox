@@ -13,45 +13,42 @@
     <script>
         let websocket = null;
         const videoElement = document.getElementById('video');
-        const onCrashDelay = 2000;
         const websocketUrl = 'ws://192.168.0.124:8765';
-        const webSocketsSetup = function () {
-            if (websocket !== null) {
-                websocket.onclose = () => {
-                    console.log('Previous WebSocket connection closed.');
-                    return init();
-                };
-                websocket.onopen = () => {
-                    console.log('WebSocket connection established.');
-                };
-                websocket.close(); 
-            } else {
-                init();
-            }
-        }
-        const init = function () {
-            let imageBuffer = [];
+        const initWebSocket = () => {
             websocket = new WebSocket(websocketUrl);
             websocket.binaryType = 'blob';
+            
+            websocket.onopen = function() {
+                console.log('WebSocket connection established.');
+            };
+            
             websocket.onmessage = function(event) {
-                if(event.data  instanceof Blob) {
-                    imageBuffer.push(event.data);
-                    const blob = new Blob(imageBuffer, { type: 'image/jpeg' });
+                if(event.data instanceof Blob) {
+                    const blob = new Blob([event.data], { type: 'image/jpeg' });
                     const url = URL.createObjectURL(blob);
-                    if(url) { videoElement.src = url; }
-                    setTimeout(() => URL.revokeObjectURL(url), 10000);
+                    videoElement.src = url;
+                    setTimeout(() => URL.revokeObjectURL(url), 10000); // Cleanup URL after 10 seconds
                 }
             };
+
             websocket.onerror = function(error) {
                 console.error('WebSocket error:', error);
             };
-            setInterval(() => {
-                if (websocket.readyState === WebSocket.OPEN) {
-                    websocket.send('wake up!'); 
-                }
-            }, 1000);
-        }
-        webSocketsSetup();
+
+            websocket.onclose = function() {
+                console.log('WebSocket connection closed. Reconnecting...');
+                setTimeout(initWebSocket, 2000); // Reconnect after 2 seconds
+            };
+        };
+
+        initWebSocket();
+        
+        // Send a "ping" to the server every 2 seconds to keep the connection alive
+        setInterval(() => {
+            if (websocket && websocket.readyState === WebSocket.OPEN) {
+                websocket.send('ping');
+            }
+        }, 2000);
     </script>
 </body>
 </html>

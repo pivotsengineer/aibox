@@ -8,24 +8,27 @@ async def video_stream(websocket, path):
         '--codec', 'mjpeg',
         '--width', '320',
         '--height', '240',
-        '--framerate', '20',
+        '--framerate', '30',
         '--inline',
         '-o', '-'  # Output to stdout
     ]
     buffer = bytearray()
-    chunkSize = 1024*4
+    chunk_size = 1024 * 4
     process = None
+
     try:
+        # Start the process once
+        process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        
         while True:
-            process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            chunk = process.stdout.read(chunkSize)
+            chunk = process.stdout.read(chunk_size)
             
             if not chunk:
                 print('No frame data received')
                 await asyncio.sleep(0.5)
                 continue
-            else:
-                buffer.extend(chunk)
+
+            buffer.extend(chunk)
 
             start_index = buffer.find(b'\xFF\xD8')  # JPEG start marker
             end_index = buffer.find(b'\xFF\xD9')  # JPEG end marker
@@ -34,16 +37,18 @@ async def video_stream(websocket, path):
                 end_index += 2  # Move past the end marker
                 frame = buffer[start_index:end_index]
                 buffer = buffer[end_index:]  # Remaining data
+
+                # Send the frame to the client
+                await websocket.send(frame)
+
                 # Search for next frame
                 start_index = buffer.find(b'\xFF\xD8')
                 end_index = buffer.find(b'\xFF\xD9')
-                await websocket.send(frame)
 
             # Clean up buffer to prevent excessive growth
-            if len(buffer) > chunkSize * 5:  # Adjust size threshold as needed
+            if len(buffer) > chunk_size * 5:  # Adjust size threshold as needed
                 print("Cleaning up buffer")
-                buffer = buffer[-chunkSize * 2:]  # Keep the last 5 chunks worth of data
-
+                buffer = buffer[-chunk_size * 2:]  # Keep the last 2 chunks worth of data
 
     except Exception as e:
         print(f"An error occurred: {e}")
