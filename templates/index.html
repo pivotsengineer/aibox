@@ -27,7 +27,7 @@
                     const blob = new Blob([event.data], { type: 'image/jpeg' });
                     const url = URL.createObjectURL(blob);
                     videoElement.src = url;
-                    setTimeout(() => URL.revokeObjectURL(url), 2000); // Cleanup URL after 10 seconds
+                    setTimeout(() => URL.revokeObjectURL(url), 500); // Cleanup URL after 10 seconds
                 }
             };
 
@@ -44,11 +44,12 @@
         initWebSocket();
         
         // Send a "ping" to the server every 2 seconds to keep the connection alive
-        setInterval(() => {
-            if (websocket && websocket.readyState === WebSocket.OPEN) {
-                websocket.send('ping');
-            }
-        }, 2000);
+        // setInterval(() => {
+        //     if (websocket && websocket.readyState === WebSocket.OPEN) {
+        //         websocket.send('ping');
+        //     }
+        // }, 2000);
+
     </script>
 </body>
 </html>
