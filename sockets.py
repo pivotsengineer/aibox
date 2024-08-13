@@ -3,7 +3,6 @@ import websockets
 import subprocess
 
 async def video_stream(websocket, path):
-    # Start libcamera-vid to capture video in MJPEG format
     command = [
         'libcamera-vid',
         '--codec', 'mjpeg',
@@ -16,15 +15,16 @@ async def video_stream(websocket, path):
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     try:
         while True:
-            frame = process.stdout.read(8086)  # Read a chunk of data
+            frame = process.stdout.read(8096)  # Chunk size, 8096 as an example
             if not frame:
                 print('No frame data received')
                 await asyncio.sleep(0.5)
                 continue
-            else:
-                await websocket.send(frame)
-                await asyncio.sleep(3)
-#                await websocket.recv()  # Wait for client acknowledgment
+            await websocket.send(frame)
+            try:
+                await websocket.recv()  # Wait for client acknowledgment (e.g., ping)
+            except websockets.ConnectionClosedOK:
+                break
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
@@ -32,7 +32,6 @@ async def video_stream(websocket, path):
         process.wait()
         print("Connection closed")
 
-# Start the WebSocket server
 async def main():
     server = await websockets.serve(video_stream, '0.0.0.0', 8765)
     await server.wait_closed()

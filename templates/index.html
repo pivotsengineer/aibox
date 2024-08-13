@@ -13,25 +13,21 @@
         const videoElement = document.getElementById('video');
         const websocket = new WebSocket('ws://192.168.0.124:8765');  // Adjust the WebSocket URL if needed
         let imageBuffer = [];
-
         websocket.binaryType = 'blob';  // Ensure binary data is treated as Blob
-
         let currentObjectURL = null;
 
-	websocket.onmessage = function(event) {
-	    imageBuffer.push(event.data);
+        websocket.onmessage = function(event) {
+            imageBuffer.push(event.data);
 
-    	    const blob = new Blob(imageBuffer, { type: 'image/jpeg' });
-	    const url = URL.createObjectURL(blob);
+            const blob = new Blob(imageBuffer, { type: 'image/jpeg' });
+            const url = URL.createObjectURL(blob);
 
-    	    videoElement.onload = () => {
-    		URL.revokeObjectURL(videoElement.src);
-    		imageBuffer = [];
-	    };
-
-	    // Set the new image source
-	    videoElement.src = url;
-	};
+            videoElement.onload = () => {
+                URL.revokeObjectURL(videoElement.src);
+                imageBuffer = [];
+            };
+            videoElement.src = url;
+        };
 
         websocket.onerror = function(error) {
             console.error('WebSocket error:', error);
@@ -41,7 +37,7 @@
             console.log('WebSocket connection closed');
         };
 
-	// Send a ping periodically to wake up the sockets
+        // Send a ping periodically to wake up the sockets
         setInterval(() => {
             if (websocket.readyState === WebSocket.OPEN) {
                 websocket.send('ping');  // Send a ping to the server
