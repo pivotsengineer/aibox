@@ -10,7 +10,7 @@
     <img id="video" src="" alt="Video stream not available">
     
     <script>
-        function setup() {
+        const setupFn = function setup() {
             const videoElement = document.getElementById('video');
             const websocket = new WebSocket('ws://192.168.0.124:8765');
             let imageBuffer = [];
@@ -36,7 +36,7 @@
 
             websocket.onclose = function() {
                 console.log('WebSocket connection closed. Reconnecting...');
-                setTimeout(setup, 5000);  // Attempt to reconnect after 5 seconds
+                setTimeout(setupFn, 5000);  // Attempt to reconnect after 5 seconds
             };
 
             // Send a ping periodically to wake up the sockets
