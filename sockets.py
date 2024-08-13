@@ -6,7 +6,7 @@ async def video_stream(websocket, path):
     # Start libcamera-vid to capture video in MJPEG format
     command = [
         'libcamera-vid',
-        '--codec', 'h264',
+        '--codec', 'mjpeg',
         '--width', '640',
         '--height', '480',
         '--framerate', '30',
