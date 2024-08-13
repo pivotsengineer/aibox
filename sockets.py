@@ -17,7 +17,7 @@ async def video_stream(websocket, path):
 
     while True:
         # Read MJPEG data from libcamera-vid
-        frame = process.stdout.read(512)  # Read a chunk of data
+        frame = process.stdout.read(1024 * 64)  # Read a chunk of data
 
         if not frame:
             print('No frame data received')
