@@ -15,7 +15,7 @@
         const videoElement = document.getElementById('video');
         const websocketUrl = 'ws://192.168.0.124:8765';
         let revokeTimer;
-        const initWebSocket = ((videoElement, websocketUrl) => {
+        const initWebSocket = ((videoElement, websocketUrl, websocket, revokeTimer) => {
             websocket = new WebSocket(websocketUrl);
             websocket.binaryType = 'blob';
             
@@ -28,9 +28,8 @@
                     const blob = new Blob([event.data], { type: 'image/jpeg' });
                     const url = URL.createObjectURL(blob);
                     videoElement.src = url;
-                    // stop the old ones before creating a new onnes
+                    // revoke old url
                     if (revokeTimer) { clearTimeout(revokeTimer); }
-                     // Cleanup URL after 10 seconds
                     revokeTimer = setTimeout(() => URL.revokeObjectURL(url), 10000);
                 }
             };
@@ -43,7 +42,7 @@
                 console.log('WebSocket connection closed. Reconnecting...');
                 setTimeout(() => initWebSocket, 3000);
             };
-        })(videoElement, websocketUrl);
+        })(videoElement, websocketUrl, websocket, revokeTimer);
 
     </script>
 </body>
