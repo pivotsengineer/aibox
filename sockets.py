@@ -6,19 +6,19 @@ async def video_stream(websocket, path):
     command = [
         'libcamera-vid',
         '--codec', 'mjpeg',
-        '--width', '640',
-        '--height', '480',
-        '--framerate', '30',
+        '--width', '320',
+        '--height', '240',
+        '--framerate', '15',
         '--inline',
         '-o', '-'  # Output to stdout
     ]
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     try:
         while True:
-            frame = process.stdout.read(8096*100)  # Chunk size, 8096 as an example
+            frame = process.stdout.read(2048)  # Chunk size, 8096 as an example
             if not frame:
                 print('No frame data received')
-                await asyncio.sleep(1)
+                await asyncio.sleep(0.5)
                 continue
             await websocket.send(frame)
             try:
