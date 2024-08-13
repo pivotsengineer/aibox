@@ -80,6 +80,7 @@ async def video_stream(websocket, path):
 
     except Exception as e:
         print(f"An error occurred: {e}")
+    finally:
         if process: cleanUp(process)
         print("Connection closed")
 
