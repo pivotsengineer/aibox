@@ -24,8 +24,8 @@ async def video_stream(websocket, path):
                 print('No frame data received')
                 await asyncio.sleep(0.5)
                 continue
-            
-            buffer.extend(chunk)
+            else:
+                buffer.extend(chunk)
 
             start_index = buffer.find(b'\xFF\xD8')  # JPEG start marker
             end_index = buffer.find(b'\xFF\xD9')  # JPEG end marker
@@ -38,9 +38,6 @@ async def video_stream(websocket, path):
                 start_index = buffer.find(b'\xFF\xD8')
                 end_index = buffer.find(b'\xFF\xD9')
                 await websocket.send(frame)
-                # Update buffer to remove the processed frame
-                buffer = buffer[end_index:]
-                await asyncio.sleep(0.2)
 
             # Clean up buffer to prevent excessive growth
             if len(buffer) > chunkSize * 5:  # Adjust size threshold as needed
