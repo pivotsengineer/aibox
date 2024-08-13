@@ -7,20 +7,17 @@
 </head>
 <body>
     <h1>Live Camera Stream</h1>
+    
     <img id="video" src="" alt="Video stream not available">
     
     <script>
         let websocket = null;
         const videoElement = document.getElementById('video');
+        let imageBuffer = [];
         const setupFn = function setup() {
-            
             if (websocket) { websocket.close(); }
-
             websocket = new WebSocket('ws://192.168.0.124:8765');
-            let imageBuffer = [];
-            
             websocket.binaryType = 'blob';
-
             websocket.onmessage = function(event) {
                 imageBuffer.push(event.data);
 
@@ -36,18 +33,17 @@
 
             websocket.onerror = function(error) {
                 console.error('WebSocket error:', error);
+                setTimeout(setupFn, 5000);
             };
 
             websocket.onclose = function() {
                 console.log('WebSocket connection closed. Reconnecting...');
-                setTimeout(setupFn, 5000);  // Attempt to reconnect after 5 seconds
+                setTimeout(setupFn, 5000);
             };
 
-            // Send a ping periodically to wake up the sockets
             setInterval(() => {
                 if (websocket.readyState === WebSocket.OPEN) {
-                    websocket.send('ping');  // Send a ping to the server
-                    console.log("Ping sent to server");
+                    websocket.send('ping'); 
                 }
             }, 1000);
         }

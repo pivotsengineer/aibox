@@ -8,7 +8,7 @@ async def video_stream(websocket, path):
         '--codec', 'mjpeg',
         '--width', '640',
         '--height', '480',
-        '--framerate', '15',
+        '--framerate', '30',
         '--inline',
         '-o', '-'  # Output to stdout
     ]
@@ -17,7 +17,7 @@ async def video_stream(websocket, path):
     
     try:
         while True:
-            chunk = process.stdout.read(1024*8)  # Read a chunk of data
+            chunk = process.stdout.read(1024*4)  # Read a chunk of data
             
             if not chunk:
                 print('No frame data received')
@@ -40,7 +40,7 @@ async def video_stream(websocket, path):
                 start_index = buffer.find(b'\xFF\xD8')
                 end_index = buffer.find(b'\xFF\xD9')
 
-            await asyncio.sleep(0.5)  # Adjust delay as needed
+            await asyncio.sleep(0.1)  # Adjust delay as needed
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
