@@ -17,16 +17,16 @@
         const websocketUrl = 'ws://192.168.0.124:8765';
         const webSocketsSetup = function () {
             if (websocket === null) {
-                websocket.onclose = function() {
+                websocket.onclose = function () {
                     console.log('Previous WebSocket connection closed.');
-                    setTimeout(init, onCrashDelay);
+                    init();
                 };
                 websocket.onopen = function () {
                     console.log('WebSocket connection established.');
                 };
                 websocket.close(); 
             } else {
-                setTimeout(init, onCrashDelay);
+                init();
             }
         }
         const init = function () {
