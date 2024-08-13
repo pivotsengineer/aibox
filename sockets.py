@@ -43,7 +43,7 @@ async def video_stream(websocket, path):
                 await asyncio.sleep(0.2)
 
             # Clean up buffer to prevent excessive growth
-            if len(buffer) > chunkSize * 15:  # Adjust size threshold as needed
+            if len(buffer) > chunkSize * 10:  # Adjust size threshold as needed
                 print("Cleaning up buffer")
                 buffer = buffer[-chunkSize * 5:]  # Keep the last 5 chunks worth of data
 
