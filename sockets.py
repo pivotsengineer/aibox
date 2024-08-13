@@ -6,25 +6,42 @@ async def video_stream(websocket, path):
     command = [
         'libcamera-vid',
         '--codec', 'mjpeg',
-        '--width', '320',
-        '--height', '240',
-        '--framerate', '15',
+        '--width', '640',
+        '--height', '480',
+        '--framerate', '30',
         '--inline',
         '-o', '-'  # Output to stdout
     ]
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    buffer = bytearray()
+    
     try:
         while True:
-            frame = process.stdout.read(2048)  # Chunk size, 8096 as an example
-            if not frame:
+            chunk = process.stdout.read(4096)  # Read a chunk of data
+            
+            if not chunk:
                 print('No frame data received')
                 await asyncio.sleep(0.5)
                 continue
-            await websocket.send(frame)
-            try:
-                await websocket.recv()  # Wait for client acknowledgment (e.g., ping)
-            except websockets.ConnectionClosedOK:
-                break
+            
+            buffer.extend(chunk)
+
+            start_index = buffer.find(b'\xFF\xD8')  # JPEG start marker
+            end_index = buffer.find(b'\xFF\xD9')  # JPEG end marker
+            
+            while start_index != -1 and end_index != -1 and end_index > start_index:
+                end_index += 2  # Move past the end marker
+                frame = buffer[start_index:end_index]
+                buffer = buffer[end_index:]  # Remaining data
+                
+                # Send the complete frame
+                await websocket.send(frame)
+                
+                # Search for next frame
+                start_index = buffer.find(b'\xFF\xD8')
+                end_index = buffer.find(b'\xFF\xD9')
+
+            await asyncio.sleep(0.1)  # Adjust delay as needed
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
