@@ -18,7 +18,7 @@ async def video_stream(websocket, path):
             frame = process.stdout.read(8096*100)  # Chunk size, 8096 as an example
             if not frame:
                 print('No frame data received')
-                await asyncio.sleep(0.5)
+                await asyncio.sleep(1)
                 continue
             await websocket.send(frame)
             try:
