@@ -29,9 +29,7 @@
                     const blob = new Blob([event.data], { type: 'image/jpeg' });
                     const url = URL.createObjectURL(blob);
                     videoElement.src = url;
-                    // revoke old url
-                    if (revokeTimer) { clearTimeout(revokeTimer); }
-                    revokeTimer = setTimeout(() => URL.revokeObjectURL(url), 10000);
+                    setTimeout(() => URL.revokeObjectURL(url), 1000);
                 }
             };
 
