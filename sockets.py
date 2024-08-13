@@ -15,7 +15,7 @@ def cleanUp(process):
 
     restartPipewireProcess = subprocess.Popen(restartPipewireCommand, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     restartPipewireProcess.terminate()
-    
+
     print("Process terminated")
 
 async def video_stream(websocket, path):
@@ -33,6 +33,8 @@ async def video_stream(websocket, path):
     process = None
 
     try:
+        cleanUp(None)
+
         # Start the process once
         process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         
