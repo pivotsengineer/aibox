@@ -2,9 +2,6 @@ import asyncio
 import websockets
 import subprocess
 
-def getChunk(buffer, chunkSize):
-
-
 async def video_stream(websocket, path):
     command = [
         'libcamera-vid',
@@ -18,7 +15,6 @@ async def video_stream(websocket, path):
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     buffer = bytearray()
     chunkSize = 1024*4
-    
     try:
         while True:
             chunk = process.stdout.read(chunkSize)  # Read a chunk of data
