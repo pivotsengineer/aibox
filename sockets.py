@@ -8,7 +8,7 @@ app = Flask(__name__)
 def generate_frames():
     while True:
 
-        command = ['libcamera-vid', '--output', 'frame.mjpeg', '--width', '320', '--height', '240', '--codec', 'mjpeg', '--timeout', '1000']
+        command = ['libcamera-vid', '--output', 'frame.mjpeg', '--width', '640', '--height', '480', '--codec', 'mjpeg', '--timeout', '50']
         subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
         # Read the MJPEG stream
