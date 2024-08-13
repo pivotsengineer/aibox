@@ -1,24 +1,27 @@
 import subprocess
-import cv2
-import numpy as np
 from flask import Flask, Response
 
 app = Flask(__name__)
 
 def generate_frames():
     # Start libcamera-vid to capture video in MJPEG format
-    process = subprocess.Popen(
-        ['libcamera-vid', '--codec', 'mjpeg', '--width', '640', '--height', '480', '--inline', '--no-qt'],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE
-    )
+    command = [
+        'libcamera-vid',
+        '--codec', 'mjpeg',
+        '--width', '640',
+        '--height', '480',
+        '--framerate', '30',
+        '--inline',
+        '-o', '-'  # Output to stdout
+    ]
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     while True:
-        # Read the MJPEG stream
+        # Read MJPEG data from libcamera-vid
         frame = process.stdout.read(1024 * 1024)  # Read a chunk of data
 
         if not frame:
-            print('no frame')
+            print('No frame data received')
             continue
 
         # Yield the frame to the response

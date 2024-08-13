@@ -9,14 +9,14 @@ def generate_frames():
     command = [
         'ffmpeg', 
         '-f', 'video4linux2', 
-        '-i', '/dev/media0',  # Adjust according to your camera device
+        '-i', '/dev/media2',  # Adjust according to your camera device
         '-f', 'mjpeg', 
         '-'
     ]
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
     while True:
-        frame = process.stdout.read(1024)  # Read a chunk of MJPEG data
+        frame = process.stdout.read(1024*1024)  # Read a chunk of MJPEG data
 
         if not frame:
             continue
