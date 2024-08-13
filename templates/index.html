@@ -27,7 +27,7 @@
                     const blob = new Blob([event.data], { type: 'image/jpeg' });
                     const url = URL.createObjectURL(blob);
                     videoElement.src = url;
-                    setTimeout(() => URL.revokeObjectURL(url), 10000); // Cleanup URL after 10 seconds
+                    setTimeout(() => URL.revokeObjectURL(url), 2000); // Cleanup URL after 10 seconds
                 }
             };
 

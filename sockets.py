@@ -5,7 +5,7 @@ import subprocess
 async def video_stream(websocket, path):
     command = [
         'libcamera-vid',
-        '--codec', 'mjpeg',
+        '--codec', 'h264',
         '--width', '640',
         '--height', '480',
         '--framerate', '30',
@@ -13,7 +13,7 @@ async def video_stream(websocket, path):
         '-o', '-'  # Output to stdout
     ]
     buffer = bytearray()
-    chunk_size = 1024 * 4
+    chunk_size = 1024
     process = None
 
     try:
@@ -46,9 +46,8 @@ async def video_stream(websocket, path):
                 end_index = buffer.find(b'\xFF\xD9')
 
             # Clean up buffer to prevent excessive growth
-            if len(buffer) > chunk_size * 5:  # Adjust size threshold as needed
-                print("Cleaning up buffer")
-                buffer = buffer[-chunk_size * 2:]  # Keep the last 2 chunks worth of data
+            if len(buffer) > chunk_size * 2:
+                buffer = buffer[-chunk_size:]  # Keep only the most recent chunk
 
     except Exception as e:
         print(f"An error occurred: {e}")
