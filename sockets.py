@@ -5,7 +5,7 @@ import subprocess
 async def video_stream(websocket, path):
     command = [
         'libcamera-vid',
-        '--codec', 'h264',
+        '--codec', 'mjpeg',
         '--width', '640',
         '--height', '480',
         '--framerate', '30',
