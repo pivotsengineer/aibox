@@ -16,7 +16,7 @@
         const websocketUrl = 'ws://192.168.0.124:8765';
         let revokeTimer;
         let rebootTimer;
-        const initWebSocket = ((videoElement, websocketUrl, websocket, revokeTimer, onCloseTimer) => {
+        const initWebSocket = ((videoElement, websocketUrl, websocket, revokeTimer, onCloseTimer, revoke) => {
             websocket = new WebSocket(websocketUrl);
             websocket.binaryType = 'blob';
             
@@ -29,7 +29,7 @@
                     const blob = new Blob([event.data], { type: 'image/jpeg' });
                     const url = URL.createObjectURL(blob);
                     videoElement.src = url;
-                    setTimeout(url => URL.revokeObjectURL(url.src), 1000);
+                    setTimeout(url => myrevoke(url), 500);
                 }
             };
 
@@ -42,7 +42,11 @@
                 if (rebootTimer) { clearTimeout(rebootTimer); }
                 rebootTimer = setTimeout(() => initWebSocket, 10000);
             };
-        })(videoElement, websocketUrl, websocket, revokeTimer, rebootTimer);
+        })(videoElement, websocketUrl, websocket, revokeTimer, rebootTimer, myrevoke);
+
+        const myrevoke = (url) => {
+            if(url) URL.revokeObjectURL(url);
+        }
 
     </script>
 </body>
