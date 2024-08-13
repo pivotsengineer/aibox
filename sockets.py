@@ -61,13 +61,9 @@ async def video_stream(websocket, path):
                 await asyncio.sleep(0.2)
 
     except Exception as e:
-        print(f"An error occurred: {e}")
-    finally:
-        if process:
-            process.terminate()  # Ensure the process is terminated
-            process.wait()  # Wait for the process to terminate
-            print("Process terminated")
-        print("Connection closed")
+        process.terminate()  # Ensure the process is terminated
+        process.wait()  # Wait for the process to terminate
+        print("Process terminated")
 
 async def main():
     server = await websockets.serve(video_stream, '0.0.0.0', 8765)
