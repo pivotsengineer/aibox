@@ -40,7 +40,7 @@ async def video_stream(websocket, path):
                 start_index = buffer.find(b'\xFF\xD8')
                 end_index = buffer.find(b'\xFF\xD9')
 
-            await asyncio.sleep(0.01)  # Adjust delay as needed
+            await asyncio.sleep(0.5)  # Adjust delay as needed
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
