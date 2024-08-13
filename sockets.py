@@ -27,8 +27,8 @@ async def video_stream(websocket, path):
                 print('No frame data received')
                 await asyncio.sleep(0.5)
                 continue
-
-            buffer.extend(chunk)
+            else:
+                buffer.extend(chunk)
 
             start_index = buffer.find(b'\xFF\xD8')  # JPEG start marker
             end_index = buffer.find(b'\xFF\xD9')  # JPEG end marker
