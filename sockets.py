@@ -44,11 +44,4 @@ async def main():
     server = await websockets.serve(video_stream, '0.0.0.0', 8765)
     await server.wait_closed()
 
-@app.route('/')
-def index():
-    return render_template('index.html')
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000, debug=True)
-
 asyncio.run(main())
