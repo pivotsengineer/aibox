@@ -34,7 +34,6 @@ async def video_stream(websocket, path):
                 frame = buffer[start_index:end_index]
                 buffer = buffer[end_index:]  # Remaining data
                 
-                # Send the complete frame
                 await websocket.send(frame)
                 
                 # Search for next frame

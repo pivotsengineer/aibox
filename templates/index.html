@@ -11,39 +11,42 @@
     
     <script>
         const videoElement = document.getElementById('video');
-        const websocket = new WebSocket('ws://192.168.0.124:8765');  // Adjust the WebSocket URL if needed
+        const websocket = new WebSocket('ws://192.168.0.124:8765');
         let imageBuffer = [];
-        websocket.binaryType = 'blob';  // Ensure binary data is treated as Blob
-        let currentObjectURL = null;
+        websocket.binaryType = 'blob';
 
-        websocket.onmessage = function(event) {
-            imageBuffer.push(event.data);
+        function setup() {
+            websocket.onmessage = function(event) {
+                imageBuffer.push(event.data);
 
-            const blob = new Blob(imageBuffer, { type: 'image/jpeg' });
-            const url = URL.createObjectURL(blob);
+                const blob = new Blob(imageBuffer, { type: 'image/jpeg' });
+                const url = URL.createObjectURL(blob);
 
-            videoElement.onload = () => {
-                URL.revokeObjectURL(videoElement.src);
-                imageBuffer = [];
+                videoElement.onload = () => {
+                    URL.revokeObjectURL(videoElement.src);
+                    imageBuffer = [];
+                };
+                videoElement.src = url;
             };
-            videoElement.src = url;
-        };
 
-        websocket.onerror = function(error) {
-            console.error('WebSocket error:', error);
-        };
+            websocket.onerror = function(error) {
+                console.error('WebSocket error:', error);
+            };
 
-        websocket.onclose = function() {
-            console.log('WebSocket connection closed');
-        };
+            websocket.onclose = function() {
+                console.log('WebSocket connection closed. Reconnecting...');
+                setTimeout(setup, 5000);  // Attempt to reconnect after 5 seconds
+            };
 
-        // Send a ping periodically to wake up the sockets
-        setInterval(() => {
-            if (websocket.readyState === WebSocket.OPEN) {
-                websocket.send('ping');  // Send a ping to the server
-                console.log("Ping sent to server");
-            }
-        }, 2000);
+            // Send a ping periodically to wake up the sockets
+            setInterval(() => {
+                if (websocket.readyState === WebSocket.OPEN) {
+                    websocket.send('ping');  // Send a ping to the server
+                    console.log("Ping sent to server");
+                }
+            }, 2000);
+        }
+        setup();
     </script>
 </body>
 </html>
