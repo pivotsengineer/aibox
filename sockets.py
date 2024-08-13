@@ -15,7 +15,7 @@ async def video_stream(websocket, path):
     process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     try:
         while True:
-            frame = process.stdout.read(8096)  # Chunk size, 8096 as an example
+            frame = process.stdout.read(8096*5)  # Chunk size, 8096 as an example
             if not frame:
                 print('No frame data received')
                 await asyncio.sleep(0.5)
