@@ -13,12 +13,19 @@
         const videoElement = document.getElementById('video');
         const websocket = new WebSocket('ws://192.168.0.124:8765');  // Adjust the WebSocket URL if needed
 
+        let imageBuffer = [];
+
         websocket.onmessage = function(event) {
-            const blob = new Blob([event.data], { type: 'image/jpeg' });
+            // Append the received data to the buffer
+            imageBuffer.push(event.data);
+
+            // Combine all buffer chunks into a single blob
+            const blob = new Blob(imageBuffer, { type: 'image/jpeg' });
             const url = URL.createObjectURL(blob);
             videoElement.src = url;
 
-            // Revoke the object URL after some time to avoid memory leaks
+            // Clear the buffer and revoke the object URL
+            imageBuffer = [];
             setTimeout(() => {
                 URL.revokeObjectURL(url);
             }, 0);
