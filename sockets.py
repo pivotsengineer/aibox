@@ -84,7 +84,6 @@ async def video_stream(websocket, path):
         print(f"An error occurred: {e}")
     finally:
         if process: cleanUp(process)
-        print("Connection closed")
 
 async def main():
     server = await websockets.serve(video_stream, '0.0.0.0', 8765)
