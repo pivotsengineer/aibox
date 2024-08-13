@@ -28,7 +28,7 @@
             imageBuffer = [];
             setTimeout(() => {
                 URL.revokeObjectURL(url);
-            }, 0);
+            }, 100);
         };
 
         websocket.onerror = function(error) {
