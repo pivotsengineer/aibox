@@ -2,6 +2,13 @@ import asyncio
 import websockets
 import subprocess
 
+def stop_service(service_name):
+    try:
+        subprocess.run(['sudo', 'systemctl', 'stop', service_name], check=True)
+        print(f"Service {service_name} stopped successfully.")
+    except subprocess.CalledProcessError as e:
+        print(f"Failed to stop {service_name}: {e}")
+
 async def video_stream(websocket, path):
     command = [
         'libcamera-vid',
@@ -58,12 +65,19 @@ async def video_stream(websocket, path):
                 if len(buffer) > chunk_size * 2:
                     buffer = buffer[-chunk_size:]  # Keep only the most recent chunk
 
-                #await asyncio.sleep(0.2)
+                await asyncio.sleep(0.2)
 
     except Exception as e:
-        process.terminate()  # Ensure the process is terminated
-        process.wait()  # Wait for the process to terminate
-        print("Process terminated")
+        print(f"An error occurred: {e}")
+    finally:
+        if process:
+            process.terminate()  # Ensure the process is terminated
+            process.wait()  # Wait for the process to terminate
+            #demon processes can see by 
+            stop_service('pipewire')
+            stop_service('wireplumb')
+            print("Process terminated")
+        print("Connection closed")
 
 async def main():
     server = await websockets.serve(video_stream, '0.0.0.0', 8765)
