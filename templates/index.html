@@ -44,7 +44,7 @@
                 if (rebootTimer) { clearTimeout(rebootTimer); }
                 rebootTimer = setTimeout(() => initWebSocket, 10000);
             };
-        })(videoElement, websocketUrl, websocket, revokeTimer, onCloseTimer);
+        })(videoElement, websocketUrl, websocket, revokeTimer, rebootTimer);
 
     </script>
 </body>
