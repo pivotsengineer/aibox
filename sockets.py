@@ -17,7 +17,7 @@ async def video_stream(websocket, path):
     
     try:
         while True:
-            chunk = process.stdout.read(2048)  # Read a chunk of data
+            chunk = process.stdout.read(4080)  # Read a chunk of data
             
             if not chunk:
                 print('No frame data received')
