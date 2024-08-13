@@ -22,14 +22,14 @@ async def video_stream(websocket, path):
     command = [
         'libcamera-vid',
         '--codec', 'mjpeg',
-        '--width', '320',
-        '--height', '240',
-        '--framerate', '15',
+        '--width', '640',
+        '--height', '480',
+        '--framerate', '30',
         '--inline',
         '-o', '-'  # Output to stdout
     ]
     buffer = bytearray()
-    chunk_size = 1024
+    chunk_size = 4024
     process = None
 
     try:
