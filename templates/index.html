@@ -16,9 +16,10 @@
     <script>
         var canvas = document.getElementById('video');
         var context = canvas.getContext('2d');
-        var ws = new WebSocket('ws://localhost:8765');
+        var ws = new WebSocket('ws://192.168.0.124:8765');
 
         ws.onmessage = function(event) {
+            console.log('got a piece');
             var arrayBuffer = event.data;
             var blob = new Blob([arrayBuffer], { type: 'image/jpeg' });
             var url = URL.createObjectURL(blob);
