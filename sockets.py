@@ -13,7 +13,7 @@ async def video_stream(websocket, path):
         '-o', '-'  # Output to stdout
     ]
     buffer = bytearray()
-    chunk_size = 1024
+    chunk_size = 2024
     process = None
 
     try:
@@ -45,9 +45,13 @@ async def video_stream(websocket, path):
                 start_index = buffer.find(b'\xFF\xD8')
                 end_index = buffer.find(b'\xFF\xD9')
 
+                print(len(buffer))
+
             # Clean up buffer to prevent excessive growth
             if len(buffer) > chunk_size * 2:
                 buffer = buffer[-chunk_size:]  # Keep only the most recent chunk
+
+                print(len(buffer))
 
     except Exception as e:
         print(f"An error occurred: {e}")
