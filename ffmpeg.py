@@ -2,7 +2,7 @@ import asyncio
 import websockets
 import subprocess
 
-def video_stream():
+async def video_stream(websocket, path):
     # Use ffmpeg to capture video and stream it as MJPEG
     command = [
         'ffmpeg', 
@@ -20,8 +20,8 @@ def video_stream():
             print('no frame')
             continue
 
-        yield (b'--frame\r\n'
-               b'Content-Type: video/mjpeg\r\n\r\n' + frame + b'\r\n')
+        # Send the frame over the WebSocket
+        await websocket.send(frame)
 
 # Start the WebSocket server
 async def main():

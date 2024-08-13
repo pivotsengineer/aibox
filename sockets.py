@@ -23,10 +23,8 @@ async def video_stream(websocket, path):
             print('No frame data received')
             continue
 
-        print('before')
         # Send the frame over the WebSocket
         await websocket.send(frame)
-        print('after')
 
 # Start the WebSocket server
 async def main():
