@@ -6,7 +6,7 @@ async def video_stream(websocket, path):
     # Start libcamera-vid to capture video in MJPEG format
     command = [
         'libcamera-vid',
-        '--codec', 'mjpeg',
+        '--codec', 'h264',
         '--width', '640',
         '--height', '480',
         '--framerate', '30',
@@ -17,7 +17,7 @@ async def video_stream(websocket, path):
 
     while True:
         # Read MJPEG data from libcamera-vid
-        frame = process.stdout.read(2048)  # Read a chunk of data
+        frame = process.stdout.read(512)  # Read a chunk of data
 
         if not frame:
             print('No frame data received')
