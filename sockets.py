@@ -1,9 +1,6 @@
 import asyncio
 import websockets
 import subprocess
-from flask import Flask, render_template
-
-app = Flask(__name__)
 
 async def video_stream(websocket, path):
     # Start libcamera-vid to capture video in MJPEG format
@@ -29,13 +26,9 @@ async def video_stream(websocket, path):
         # Send the frame over the WebSocket
         await websocket.send(frame)
 
-@app.route('/')
-def index():
-    return render_template('index.html')
-
 # Start the WebSocket server
-start_server = websockets.serve(video_stream, '0.0.0.0', 8765, debug=True)
+async def main():
+    server = await websockets.serve(video_stream, '0.0.0.0', 8765)
+    await server.wait_closed()
 
-asyncio.get_event_loop().run_until_complete(start_server)
-asyncio.get_event_loop().run_forever()
-
+asyncio.run(main())
