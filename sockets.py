@@ -2,7 +2,7 @@ import asyncio
 import websockets
 import subprocess
 
-def cleanUp(process):
+def cleanUp(process, video_stream):
     # to stop left overs from the camera processes
     restartPipewireCommand = [
         'sudo', 'pkill', 'pipewire', 
