@@ -2,12 +2,18 @@ import asyncio
 import websockets
 import subprocess
 
-def stop_service(service_name):
-    try:
-        subprocess.run(['sudo', 'systemctl', 'stop', service_name], check=True)
-        print(f"Service {service_name} stopped successfully.")
-    except subprocess.CalledProcessError as e:
-        print(f"Failed to stop {service_name}: {e}")
+def cleanUp(process):
+    process.terminate()  # Ensure the process is terminated
+    process.wait()  # Wait for the process to terminate
+    restartPipewireProcess = subprocess.Popen(restartPipewireCommand, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    restartPipewireProcess.wait()
+    # to stop left overs from the camera processes
+    restartPipewireCommand = [
+        'sudo', 'pkill', 'pipewire', 
+        '&', 
+        'sudo', 'pipewire'
+    ]
+    print("Process terminated")
 
 async def video_stream(websocket, path):
     command = [
@@ -69,14 +75,7 @@ async def video_stream(websocket, path):
 
     except Exception as e:
         print(f"An error occurred: {e}")
-    finally:
-        if process:
-            process.terminate()  # Ensure the process is terminated
-            process.wait()  # Wait for the process to terminate
-            #demon processes can see by 
-            stop_service('pipewire')
-            stop_service('wireplumb')
-            print("Process terminated")
+        if process: cleanUp(process)
         print("Connection closed")
 
 async def main():
