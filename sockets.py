@@ -32,14 +32,12 @@ async def video_stream(websocket, path):
                 end_index += 2  # Move past the end marker
                 frame = buffer[start_index:end_index]
                 buffer = buffer[end_index:]  # Remaining data
-                
-                await websocket.send(frame)
-                
                 # Search for next frame
                 start_index = buffer.find(b'\xFF\xD8')
                 end_index = buffer.find(b'\xFF\xD9')
+                await asyncio.sleep(0.2)
+                await websocket.send(frame)
 
-            await asyncio.sleep(0.02)  # Adjust delay as needed
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:

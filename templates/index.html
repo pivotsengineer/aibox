@@ -13,20 +13,20 @@
     <script>
         let websocket = null;
         const videoElement = document.getElementById('video');
-        const onCrashDelay = 3000;
+        const onCrashDelay = 2000;
         const websocketUrl = 'ws://192.168.0.124:8765';
         const webSocketsSetup = function () {
             if (websocket) {
                 websocket.close(); 
                 websocket.onclose = function() {
                     console.log('Previous WebSocket connection closed.');
-                    setTimeout(init, onCrashDelay).bind(this);
+                    setTimeout(init, onCrashDelay);
                 };
                 websocket.onopen = function () {
                     console.log('WebSocket connection established.');
                 };
             } else {
-                setTimeout(init, onCrashDelay).bind(this);
+                setTimeout(init, onCrashDelay);
             }
         }
         const init = function () {
@@ -34,14 +34,13 @@
             websocket = new WebSocket(websocketUrl);
             websocket.binaryType = 'blob';
             websocket.onmessage = function(event) {
-                imageBuffer.push(event.data);
-
-                const blob = new Blob(imageBuffer, { type: 'image/jpeg' });
-                const url = URL.createObjectURL(blob);
-                
-                document.getElementById('video').src = url;
-
-                //setTimeout(() => URL.revokeObjectURL(url), 10000);
+                if(event.data  instanceof Blob) {
+                    imageBuffer.push(event.data);
+                    const blob = new Blob(imageBuffer, { type: 'image/jpeg' });
+                    const url = URL.createObjectURL(blob);
+                    const videoUrlTimout = setTimeout(() => videoElement.src = url, 500);
+                    const revokeObjectURLTimout = setTimeout(() => URL.revokeObjectURL(url), 1000);
+                }
             };
             websocket.onerror = function(error) {
                 console.error('WebSocket error:', error);
