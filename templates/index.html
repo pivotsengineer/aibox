@@ -37,17 +37,11 @@
 
             websocket.onclose = () => {
                 console.log('WebSocket connection closed. Reconnecting...');
+                setTimeout(() => initWebSocket, 3000);
             };
         };
 
         initWebSocket();
-        
-        // Send a "ping" to the server every 30 seconds to keep the connection alive
-        setInterval(() => {
-            if (websocket && websocket.readyState === WebSocket.OPEN) {
-                websocket.send('ping');
-            }
-        }, 4000);
 
     </script>
 </body>
