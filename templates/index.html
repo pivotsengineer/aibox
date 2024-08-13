@@ -1,0 +1,34 @@
+<!doctype html>
+<html>
+<head>
+    <title>Video Stream</title>
+    <style>
+        #video {
+            width: 640px;
+            height: 480px;
+            background: #000;
+        }
+    </style>
+</head>
+<body>
+    <h1>Video Stream</h1>
+    <canvas id="video"></canvas>
+    <script>
+        var canvas = document.getElementById('video');
+        var context = canvas.getContext('2d');
+        var ws = new WebSocket('ws://localhost:8765');
+
+        ws.onmessage = function(event) {
+            var arrayBuffer = event.data;
+            var blob = new Blob([arrayBuffer], { type: 'image/jpeg' });
+            var url = URL.createObjectURL(blob);
+            var img = new Image();
+            img.onload = function() {
+                context.drawImage(img, 0, 0, canvas.width, canvas.height);
+                URL.revokeObjectURL(url);
+            };
+            img.src = url;
+        };
+    </script>
+</body>
+</html>

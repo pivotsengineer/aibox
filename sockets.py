@@ -1,9 +1,11 @@
+import asyncio
+import websockets
 import subprocess
-from flask import Flask, Response
+from flask import Flask, render_template
 
 app = Flask(__name__)
 
-def generate_frames():
+async def video_stream(websocket, path):
     # Start libcamera-vid to capture video in MJPEG format
     command = [
         'libcamera-vid',
@@ -24,28 +26,16 @@ def generate_frames():
             print('No frame data received')
             continue
 
-        # Yield the frame to the response
-        yield (b'--frame\r\n'
-               b'Content-Type: video/mjpeg\r\n\r\n' + frame + b'\r\n')
+        # Send the frame over the WebSocket
+        await websocket.send(frame)
 
 @app.route('/')
 def index():
-    return '''
-    <!doctype html>
-    <html>
-    <head>
-        <title>Video Stream</title>
-    </head>
-    <body>
-        <h1>Video Stream</h1>
-        <img src="/video_feed" width="640" height="480">
-    </body>
-    </html>
-    '''
+    return render_template('index.html')
 
-@app.route('/video_feed')
-def video_feed():
-    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+# Start the WebSocket server
+start_server = websockets.serve(video_stream, '0.0.0.0', 8765, debug=True)
 
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8000, debug=True)
+asyncio.get_event_loop().run_until_complete(start_server)
+asyncio.get_event_loop().run_forever()
+
