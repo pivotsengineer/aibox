@@ -29,7 +29,7 @@
                     const blob = new Blob([event.data], { type: 'image/jpeg' });
                     const url = URL.createObjectURL(blob);
                     videoElement.src = url;
-                    setTimeout(url => URL.revokeObjectURL(url), 1000);
+                    setTimeout(url => URL.revokeObjectURL(url.src), 1000);
                 }
             };
 
