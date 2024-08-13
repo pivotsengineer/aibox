@@ -43,7 +43,7 @@
             websocket.onclose = () => {
                 console.log('WebSocket connection closed. Reconnecting...');
                 if (rebootTimer) { clearTimeout(rebootTimer); }
-                rebootTimer = setTimeout(() => initWebSocket(
+                rebootTimer = setTimeout(() => document.initWebSocket(
                     videoElement, websocketUrl, websocket, revokeTimer, onCloseTimer, myrevoke), 10000);
             };
         })(videoElement, websocketUrl, websocket, revokeTimer, rebootTimer, myrevoke);
