@@ -23,11 +23,8 @@
             const self = this;
             websocket = new WebSocket(websocketUrl);
             websocket.binaryType = 'blob';
-            
-            websocket.onopen = () => {
-                console.log('WebSocket connection established.');
-            };
-            
+            websocket.onopen = () => console.log('WebSocket connection established.');
+            websocket.onerror = (error) => console.error('WebSocket error:', error);
             websocket.onmessage = (event) => {
                 if(event.data instanceof Blob) {
                     const blob = new Blob([event.data], { type: 'image/jpeg' });
@@ -35,10 +32,6 @@
                     videoElement.src = url;
                     setTimeout(() => { myrevoke(url); }, 0);
                 }
-            };
-
-            websocket.onerror = (error) => {
-                console.error('WebSocket error:', error);
             };
 
             websocket.onclose = () => {
