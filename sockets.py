@@ -78,6 +78,7 @@ async def video_stream(websocket, path):
             
     except Exception as e:
         print(f"An error occurred: {e}")
+        cleanUp(process)
 
 async def main():
     server = await websockets.serve(video_stream, '0.0.0.0', 8765)
