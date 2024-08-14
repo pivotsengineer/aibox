@@ -72,7 +72,7 @@ async def video_stream(websocket, path):
             
             # Clean up after process terminates
             cleanUp(process)
-            await asyncio.sleep(0.25)  # Add delay before restarting
+            await asyncio.sleep(1)  # Add delay before restarting
             
     except Exception as e:
         print(f"An error occurred: {e}")

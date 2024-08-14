@@ -36,9 +36,7 @@
             };
 
             websocket.onclose = () => {
-                console.log('WebSocket connection closed. Reconnecting...');
-                if (rebootTimer) { clearTimeout(rebootTimer); }
-                rebootTimer = setTimeout(() => { initWebSocket(); }, 2000);
+                console.log('WebSocket connection closed');
             };
         };
         initWebSocket();
