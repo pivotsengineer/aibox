@@ -40,17 +40,6 @@ def cleanUp(process):
 
     time.sleep(1)
 
-def is_camera_in_use():
-    # Check if any process is using the camera
-    try:
-        result = subprocess.run(['lsof', '/dev/media1'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        if result.stdout:
-            print(result.stdout)
-            return True
-    except Exception as e:
-        print(f"Error checking camera usage: {e}")
-    return False
-
 async def video_stream(websocket, path):
     command = [
         'libcamera-vid',
