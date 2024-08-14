@@ -7,24 +7,20 @@
 </head>
 <body>
     <h1>Live Camera Stream</h1>
-    
     <img id="video" src="" alt="Video stream not available">
-    
     <script>
         let websocket = null;
         const videoElement = document.getElementById('video');
         const websocketUrl = 'ws://192.168.0.124:8765';
         let revokeTimer;
         let rebootTimer;
-        const myrevoke = (url) => {
-            if(!url) return;
-            URL.revokeObjectURL(url);
-        }
+        const myrevoke = (url) => URL.revokeObjectURL(url);
         const initWebSocket = () => {
             const self = this;
             websocket = new WebSocket(websocketUrl);
             websocket.binaryType = 'blob';
             websocket.onopen = () => console.log('WebSocket connection established.');
+            websocket.onclose = () => console.log('WebSocket connection closed');
             websocket.onerror = (error) => console.error('WebSocket error:', error);
             websocket.onmessage = (event) => {
                 if(event.data instanceof Blob) {
@@ -33,9 +29,6 @@
                     videoElement.src = url;
                     setTimeout(() => { myrevoke(videoElement.src); }, 1000);
                 }
-            };
-            websocket.onclose = () => {
-                console.log('WebSocket connection closed');
             };
         };
         initWebSocket();
