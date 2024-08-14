@@ -14,8 +14,8 @@
         let websocket = null;
         const videoElement = document.getElementById('video');
         const websocketUrl = 'ws://192.168.0.124:8765';
-        let revokeTimer;
-        let rebootTimer;
+        let revokeTimer = null;
+        let rebootTimer = null;
         const myrevoke = (url) => {
             if(!url) return;
             URL.revokeObjectURL(url);
@@ -34,10 +34,11 @@
                     setTimeout(() => { myrevoke(videoElement.src); }, 0);
                 }
             };
+
             websocket.onclose = () => {
                 console.log('WebSocket connection closed. Reconnecting...');
                 if (rebootTimer) { clearTimeout(rebootTimer); }
-                rebootTimer = setTimeout(() => { initWebSocket(); }, 500);
+                rebootTimer = setTimeout(() => { initWebSocket(); }, 1000);
             };
         };
         initWebSocket();
