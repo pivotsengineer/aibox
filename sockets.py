@@ -31,7 +31,7 @@ async def video_stream(websocket, path):
         '-o', '-'  # Output to stdout
     ]
     buffer = bytearray()
-    chunk_size = 1024 * 4
+    chunk_size = 1024 * 2
     process = None
 
     try:
@@ -43,7 +43,7 @@ async def video_stream(websocket, path):
                 
                 if not chunk:
                     print('No frame data received')
-                    await asyncio.sleep(0.05)
+                    await asyncio.sleep(0.5)
                     return_code = process.poll()
                     if return_code is not None:
                         print(f"libcamera-vid terminated with return code: {return_code}")
