@@ -17,8 +17,6 @@ def cleanUp(process):
         else:
             print("No 'libcamera-vid' process found to kill.")
 
-    time.sleep(1)
-
 async def video_stream(websocket, path):
     command = [
         'libcamera-vid',
