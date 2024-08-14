@@ -26,12 +26,12 @@ async def video_stream(websocket, path):
         '--width', '640',
         '--height', '480',
         '--framerate', '15',
-        '-t', '100000',  # Increase timeout
+        '-t', '10000',  # Increase timeout
         '--inline',
         '-o', '-'  # Output to stdout
     ]
     buffer = bytearray()
-    chunk_size = 1024
+    chunk_size = 1024 * 4
     process = None
 
     try:
@@ -70,7 +70,7 @@ async def video_stream(websocket, path):
                     if len(buffer) > chunk_size * 2:
                         buffer = buffer[-chunk_size:]
             
-            cleanUp(process)
+            # cleanUp(process)
             
     except Exception as e:
         print(f"An error occurred: {e}")
