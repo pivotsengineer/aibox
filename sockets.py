@@ -17,14 +17,6 @@ def cleanUp(process):
         else:
             print("No 'libcamera-vid' process found to kill.")
 
-    try:
-        subprocess.run(['sudo', 'pkill', 'libcamera-hello'], check=True)
-    except subprocess.CalledProcessError as e:
-        if e.returncode != 1:
-            raise  # Re-raise if the error was due to another reason
-        else:
-            print("No 'libcamera-hello' process found to kill.")
-
     time.sleep(1)
 
 async def video_stream(websocket, path):
@@ -82,7 +74,6 @@ async def video_stream(websocket, path):
             
             # Clean up after process terminates
             cleanUp(process)
-            await asyncio.sleep(1)  # Add delay before restarting
             
     except Exception as e:
         print(f"An error occurred: {e}")
