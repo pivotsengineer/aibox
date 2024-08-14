@@ -69,6 +69,8 @@ async def video_stream(websocket, path):
 
                     if len(buffer) > chunk_size * 2:
                         buffer = buffer[-chunk_size:]
+
+                    await asyncio.sleep(0.5)
             
             cleanUp(process)
             
