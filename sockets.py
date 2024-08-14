@@ -9,15 +9,17 @@ def cleanUp(process):
         process.wait()  # Wait for the process to terminate
 
     # Ensure all camera-related processes are killed
-    try:
-        subprocess.run(['sudo', 'pkill', 'libcamera-vid'], check=True)
-    except subprocess.CalledProcessError as e:
-        if e.returncode != 1:
-            raise  # Re-raise if the error was due to another reason
-        else:
-            print("No 'libcamera-vid' process found to kill.")
+    # try:
+    #     subprocess.run(['sudo', 'pkill', 'libcamera-vid'], check=True)
+    # except subprocess.CalledProcessError as e:
+    #     if e.returncode != 1:
+    #         raise  # Re-raise if the error was due to another reason
+    #     else:
+    #         print("No 'libcamera-vid' process found to kill.")
 
-    time.sleep(0.2)
+    #time.sleep(1)
+
+    video_stream();
 
 async def video_stream(websocket, path):
     command = [
