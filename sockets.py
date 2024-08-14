@@ -19,7 +19,7 @@ def cleanUp(process):
 
     #time.sleep(1)
 
-    video_stream();
+    video_stream(None, None);
 
 async def video_stream(websocket, path):
     command = [
