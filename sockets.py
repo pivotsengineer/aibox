@@ -26,7 +26,7 @@ async def video_stream(websocket, path):
         '--width', '640',
         '--height', '480',
         '--framerate', '15',
-        '-t', '1000',  # Increase timeout
+        '-t', '10000',  # Increase timeout
         '--inline',
         '-o', '-'  # Output to stdout
     ]
@@ -63,6 +63,8 @@ async def video_stream(websocket, path):
 
                     # Send the frame to the client
                     await websocket.send(frame)
+
+                    time.sleep(0.05)
 
                     start_index = buffer.find(b'\xFF\xD8')
                     end_index = buffer.find(b'\xFF\xD9')
