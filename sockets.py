@@ -26,7 +26,7 @@ async def video_stream(websocket, path):
         '--width', '640',
         '--height', '480',
         '--framerate', '15',
-        '-t', '10000',  # Increase timeout
+        '-t', '1000',  # Increase timeout
         '--inline',
         '-o', '-'  # Output to stdout
     ]
