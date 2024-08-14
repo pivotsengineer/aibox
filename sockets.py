@@ -8,7 +8,7 @@ def cleanUp(process):
         process.terminate()  # Ensure the process is terminated
         process.wait()  # Wait for the process to terminate
 
-    Ensure all camera-related processes are killed
+    # Ensure all camera-related processes are killed
     try:
         subprocess.run(['sudo', 'pkill', 'libcamera-vid'], check=True)
     except subprocess.CalledProcessError as e:
