@@ -14,10 +14,8 @@ def cleanUp(process):
     except subprocess.CalledProcessError as e:
         if e.returncode != 1:
             raise  # Re-raise if the error was due to another reason
-        else:
-            print("No 'libcamera-vid' process found to kill.")
 
-    time.sleep(0.5)
+    time.sleep(1)
 
 async def video_stream(websocket, path):
     command = [
@@ -43,7 +41,6 @@ async def video_stream(websocket, path):
                 
                 if not chunk:
                     print('No frame data received')
-                    await asyncio.sleep(0.5)
                     return_code = process.poll()
                     if return_code is not None:
                         print(f"libcamera-vid terminated with return code: {return_code}")
@@ -70,8 +67,6 @@ async def video_stream(websocket, path):
                     if len(buffer) > chunk_size * 2:
                         buffer = buffer[-chunk_size:]
 
-                    await asyncio.sleep(0.05)
-            
             cleanUp(process)
             
     except Exception as e:
