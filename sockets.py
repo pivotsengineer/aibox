@@ -10,7 +10,7 @@ def cleanUp(process):
 
     # Ensure all camera-related processes are killed
     try:
-        subprocess.run(['sudo', 'pkill', 'libcamera-vid'], check=True)
+        subprocess.run(['sudo', 'pkill', '-f', 'libcamera-vid'], check=True)
     except subprocess.CalledProcessError as e:
         if e.returncode != 1:
             raise  # Re-raise if the error was due to another reason
@@ -18,6 +18,17 @@ def cleanUp(process):
             print("No 'libcamera-vid' process found to kill.")
 
     time.sleep(1)
+
+def is_camera_in_use():
+    # Check if any process is using the camera
+    try:
+        result = subprocess.run(['lsof', '/dev/media1'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if result.stdout:
+            print("Camera is in use by another process.")
+            return True
+    except Exception as e:
+        print(f"Error checking camera usage: {e}")
+    return False
 
 async def video_stream(websocket, path):
     command = [
@@ -36,6 +47,13 @@ async def video_stream(websocket, path):
 
     try:
         while True:
+
+             # Check if the camera is in use
+            if is_camera_in_use():
+                print("Camera is in use. Waiting...")
+                await asyncio.sleep(1)
+                continue
+
             # Start the process
             process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
@@ -78,7 +96,6 @@ async def video_stream(websocket, path):
             
     except Exception as e:
         print(f"An error occurred: {e}")
-        cleanUp(process)
 
 async def main():
     server = await websockets.serve(video_stream, '0.0.0.0', 8765)
