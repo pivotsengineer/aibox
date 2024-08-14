@@ -22,7 +22,7 @@ async def video_stream(websocket, path):
         '--codec', 'mjpeg',
         '--width', '640',
         '--height', '480',
-        '--framerate', '30',
+        '--framerate', '15',
         '--inline',
         '-o', '-'  # Output to stdout
     ]
@@ -50,8 +50,6 @@ async def video_stream(websocket, path):
                         stderr_output = process.stderr.read().decode()
                         print(f"libcamera-vid error: {stderr_output}")
                         break
-
-                continue
             else:
                 buffer.extend(chunk)
 
