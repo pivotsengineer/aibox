@@ -49,8 +49,8 @@ async def video_stream(websocket, path):
                         print(f"libcamera-vid terminated with return code: {return_code}")
                         stderr_output = process.stderr.read().decode()
                         print(f"libcamera-vid error: {stderr_output}")
-                        await asyncio.sleep(0.5)
                         break
+                    await asyncio.sleep(0.2)
                 continue
             else:
                 buffer.extend(chunk)
