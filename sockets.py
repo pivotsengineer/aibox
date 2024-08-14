@@ -35,7 +35,6 @@ async def video_stream(websocket, path):
 
     try:
         while True:
-            # Start the process
             process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
             while True:
@@ -43,7 +42,7 @@ async def video_stream(websocket, path):
                 
                 if not chunk:
                     print('No frame data received')
-                    await asyncio.sleep(0.3)
+                    await asyncio.sleep(0.05)
                     return_code = process.poll()
                     if return_code is not None:
                         print(f"libcamera-vid terminated with return code: {return_code}")
@@ -69,17 +68,13 @@ async def video_stream(websocket, path):
 
                     if len(buffer) > chunk_size * 2:
                         buffer = buffer[-chunk_size:]
-
-                    await asyncio.sleep(0.25)
             
-            # Clean up after process terminates
             cleanUp(process)
             
     except Exception as e:
         print(f"An error occurred: {e}")
     finally:
         cleanUp(process)
-
 
 async def main():
     server = await websockets.serve(video_stream, '0.0.0.0', 8765)
