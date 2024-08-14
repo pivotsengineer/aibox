@@ -41,7 +41,7 @@ async def video_stream(websocket, path):
             
             if not chunk:
                 print('No frame data received')
-                await asyncio.sleep(0.5)
+                await asyncio.sleep(0.3)
                 # Check for process termination
                 #if debugMode:
                 return_code = process.poll()
@@ -72,7 +72,7 @@ async def video_stream(websocket, path):
                 if len(buffer) > chunk_size * 2:
                     buffer = buffer[-chunk_size:]  # Keep only the most recent chunk
 
-                await asyncio.sleep(0.2)
+                await asyncio.sleep(0.05)
 
     except Exception as e:
         print(f"An error occurred: {e}")
