@@ -7,9 +7,23 @@ def cleanUp(process):
     if process:
         process.terminate()  # Ensure the process is terminated
         process.wait()  # Wait for the process to terminate
+
     # Ensure all camera-related processes are killed
-    subprocess.run(['sudo', 'pkill', 'libcamera-vid'], check=True)
-    subprocess.run(['sudo', 'pkill', 'libcamera-hello'], check=True)
+    try:
+        subprocess.run(['sudo', 'pkill', 'libcamera-vid'], check=True)
+    except subprocess.CalledProcessError as e:
+        if e.returncode != 1:
+            raise  # Re-raise if the error was due to another reason
+        else:
+            print("No 'libcamera-vid' process found to kill.")
+
+    try:
+        subprocess.run(['sudo', 'pkill', 'libcamera-hello'], check=True)
+    except subprocess.CalledProcessError as e:
+        if e.returncode != 1:
+            raise  # Re-raise if the error was due to another reason
+        else:
+            print("No 'libcamera-hello' process found to kill.")
 
     time.sleep(1)
 
