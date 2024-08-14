@@ -1,6 +1,7 @@
 import asyncio
 import websockets
 import subprocess
+import time
 
 def cleanUp(process):
     if process:
@@ -9,6 +10,8 @@ def cleanUp(process):
     # Ensure all camera-related processes are killed
     subprocess.run(['sudo', 'pkill', 'libcamera-vid'], check=True)
     subprocess.run(['sudo', 'pkill', 'libcamera-hello'], check=True)
+
+    time.sleep(1)
 
 async def video_stream(websocket, path):
     command = [
