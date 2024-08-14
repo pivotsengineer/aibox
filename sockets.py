@@ -68,11 +68,11 @@ async def video_stream(websocket, path):
                     if len(buffer) > chunk_size * 2:
                         buffer = buffer[-chunk_size:]
 
-                    await asyncio.sleep(0.5)
+                    await asyncio.sleep(0.25)
             
             # Clean up after process terminates
             cleanUp(process)
-            await asyncio.sleep(1)  # Add delay before restarting
+            await asyncio.sleep(0.25)  # Add delay before restarting
             
     except Exception as e:
         print(f"An error occurred: {e}")
