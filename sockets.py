@@ -22,7 +22,7 @@ def cleanUp(process):
 def is_camera_in_use():
     # Check if any process is using the camera
     try:
-        result = subprocess.run(['lsof', '/dev/media1'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        result = subprocess.run(['lsof', '/dev/media0'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if result.stdout:
             print("Camera is in use by another process.")
             return True
