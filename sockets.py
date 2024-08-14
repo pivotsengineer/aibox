@@ -23,7 +23,7 @@ async def video_stream(websocket, path):
         '--codec', 'mjpeg',
         '--width', '640',
         '--height', '480',
-        '--framerate', '15',
+        '--framerate', '30',
         '--inline',
         '-o', '-'  # Output to stdout
     ]
@@ -73,7 +73,7 @@ async def video_stream(websocket, path):
                 if len(buffer) > chunk_size * 2:
                     buffer = buffer[-chunk_size:]  # Keep only the most recent chunk
 
-                await asyncio.sleep(0.05)
+                await asyncio.sleep(0.2)
 
     except Exception as e:
         print(f"An error occurred: {e}")
