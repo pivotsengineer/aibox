@@ -2,6 +2,27 @@ import asyncio
 import websockets
 import subprocess
 import time
+import os
+
+camera_device = "/dev/media1"
+
+def check_and_release_camera():
+    # Check which process is using the camera device
+    result = subprocess.run(['lsof', camera_device], capture_output=True, text=True)
+    lines = result.stdout.strip().split('\n')
+    
+    # Skip the header and get process info
+    for line in lines[1:]:
+        parts = line.split()
+        pid = int(parts[1])
+        command = parts[0]
+        print(f"Killing process {command} with PID {pid} using {camera_device}")
+        try:
+            os.kill(pid, 9)
+        except Exception as e:
+            print(f"Error killing process {pid}: {e}")
+
+    time.sleep(1)  # Give the system a moment to release the camera
 
 def cleanUp(process):
     if process:
@@ -48,11 +69,8 @@ async def video_stream(websocket, path):
     try:
         while True:
 
-             # Check if the camera is in use
-            if is_camera_in_use():
-                print("Camera is in use. Waiting...")
-                await asyncio.sleep(1)
-                continue
+            # Check and release camera if it's in use
+            check_and_release_camera()
 
             # Start the process
             process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
