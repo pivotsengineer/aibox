@@ -21,7 +21,6 @@
             URL.revokeObjectURL(url);
         }
         const initWebSocket = () => {
-            const self = this;
             websocket = new WebSocket(websocketUrl);
             websocket.binaryType = 'blob';
             websocket.onopen = () => console.log('WebSocket connection established.');
@@ -34,7 +33,6 @@
                     setTimeout(() => { myrevoke(videoElement.src); }, 0);
                 }
             };
-
             websocket.onclose = () => {
                 console.log('WebSocket connection closed. Reconnecting...');
                 if (rebootTimer) { clearTimeout(rebootTimer); }
