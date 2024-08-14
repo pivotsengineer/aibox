@@ -43,13 +43,13 @@ async def video_stream(websocket, path):
                 print('No frame data received')
                 await asyncio.sleep(0.5)
                 # Check for process termination
-                if debugMode:
-                    return_code = process.poll()
-                    if return_code is not None:
-                        print(f"libcamera-vid terminated with return code: {return_code}")
-                        stderr_output = process.stderr.read().decode()
-                        print(f"libcamera-vid error: {stderr_output}")
-                        break
+                #if debugMode:
+                return_code = process.poll()
+                if return_code is not None:
+                    print(f"libcamera-vid terminated with return code: {return_code}")
+                    stderr_output = process.stderr.read().decode()
+                    print(f"libcamera-vid error: {stderr_output}")
+                    break
             else:
                 buffer.extend(chunk)
 
