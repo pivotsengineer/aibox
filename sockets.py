@@ -17,7 +17,7 @@ def cleanUp(process):
         else:
             print("No 'libcamera-vid' process found to kill.")
 
-    time.sleep(1)
+    time.sleep(0.2)
 
 async def video_stream(websocket, path):
     command = [
@@ -26,7 +26,7 @@ async def video_stream(websocket, path):
         '--width', '640',
         '--height', '480',
         '--framerate', '15',
-        '-t', '10000',  # Increase timeout
+        '-t', '100000',  # Increase timeout
         '--inline',
         '-o', '-'  # Output to stdout
     ]
