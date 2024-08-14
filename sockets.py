@@ -27,7 +27,7 @@ async def video_stream(websocket, path):
         '-o', '-'  # Output to stdout
     ]
     buffer = bytearray()
-    chunk_size = 4024
+    chunk_size = 4024 * 4
     process = None
     debugMode = None
 
@@ -49,9 +49,8 @@ async def video_stream(websocket, path):
                         print(f"libcamera-vid terminated with return code: {return_code}")
                         stderr_output = process.stderr.read().decode()
                         print(f"libcamera-vid error: {stderr_output}")
+                        await asyncio.sleep(0.5)
                         break
-
-                await asyncio.sleep(0.5)
                 continue
             else:
                 buffer.extend(chunk)
