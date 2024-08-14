@@ -24,7 +24,7 @@ def is_camera_in_use():
     try:
         result = subprocess.run(['lsof', '/dev/media1'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if result.stdout:
-            print("Camera is in use by another process.")
+            print(result.stdout)
             return True
     except Exception as e:
         print(f"Error checking camera usage: {e}")
