@@ -30,13 +30,13 @@
                     const blob = new Blob([event.data], { type: 'image/jpeg' });
                     const url = URL.createObjectURL(blob);
                     videoElement.src = url;
-                    setTimeout(() => { myrevoke(videoElement.src); }, 0);
+                    setTimeout(() => { myrevoke(videoElement.src); }, 100);
                 }
             };
             websocket.onclose = () => {
                 console.log('WebSocket connection closed. Reconnecting...');
                 if (rebootTimer) { clearTimeout(rebootTimer); }
-                rebootTimer = setTimeout(() => { initWebSocket(); }, 500);
+                rebootTimer = setTimeout(() => { initWebSocket(); }, 100);
             };
         };
         initWebSocket();

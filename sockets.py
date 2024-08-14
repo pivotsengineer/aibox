@@ -22,12 +22,12 @@ async def video_stream(websocket, path):
         '--codec', 'mjpeg',
         '--width', '640',
         '--height', '480',
-        '--framerate', '60',
+        '--framerate', '30',
         '--inline',
         '-o', '-'  # Output to stdout
     ]
     buffer = bytearray()
-    chunk_size = 4024 * 4
+    chunk_size = 4024
     process = None
 
     try:
@@ -45,11 +45,11 @@ async def video_stream(websocket, path):
                 return_code = process.poll()
                 if return_code is not None:
                     print(f"libcamera-vid terminated with return code: {return_code}")
-                    stderr_output = process.stderr.read().decode()
+                    #stderr_output = process.stderr.read().decode()
                     print(f"libcamera-vid error: {stderr_output}")
                     break
 
-                await asyncio.sleep(0.5)
+                await asyncio.sleep(0.05)
                 continue
             else:
                 buffer.extend(chunk)
@@ -73,7 +73,7 @@ async def video_stream(websocket, path):
                 if len(buffer) > chunk_size * 2:
                     buffer = buffer[-chunk_size:]  # Keep only the most recent chunk
 
-                await asyncio.sleep(0.2)
+                await asyncio.sleep(0.02)
 
     except Exception as e:
         print(f"An error occurred: {e}")
