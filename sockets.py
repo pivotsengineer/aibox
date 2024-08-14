@@ -8,16 +8,16 @@ def cleanUp(process):
         process.terminate()  # Ensure the process is terminated
         process.wait()  # Wait for the process to terminate
 
-    # Ensure all camera-related processes are killed
-    # try:
-    #     subprocess.run(['sudo', 'pkill', 'libcamera-vid'], check=True)
-    # except subprocess.CalledProcessError as e:
-    #     if e.returncode != 1:
-    #         raise  # Re-raise if the error was due to another reason
-    #     else:
-    #         print("No 'libcamera-vid' process found to kill.")
+    Ensure all camera-related processes are killed
+    try:
+        subprocess.run(['sudo', 'pkill', 'libcamera-vid'], check=True)
+    except subprocess.CalledProcessError as e:
+        if e.returncode != 1:
+            raise  # Re-raise if the error was due to another reason
+        else:
+            print("No 'libcamera-vid' process found to kill.")
 
-    # time.sleep(1)
+    time.sleep(1)
 
 async def video_stream(websocket, path):
     command = [
@@ -68,10 +68,10 @@ async def video_stream(websocket, path):
                     start_index = buffer.find(b'\xFF\xD8')
                     end_index = buffer.find(b'\xFF\xD9')
 
-                    if len(buffer) > chunk_size * 2:
+                    if len(buffer) > chunk_size * 4:
                         buffer = buffer[-chunk_size:]
 
-                    await asyncio.sleep(0.25)
+                    await asyncio.sleep(0.05)
             
             # Clean up after process terminates
             cleanUp(process)
