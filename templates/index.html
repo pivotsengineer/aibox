@@ -35,11 +35,11 @@
                 }
             };
 
-            websocket.onclose = () => {
-                console.log('WebSocket connection closed. Reconnecting...');
-                if (rebootTimer) { clearTimeout(rebootTimer); }
-                rebootTimer = setTimeout(() => { initWebSocket(); }, 2000);
-            };
+            // websocket.onclose = () => {
+            //     console.log('WebSocket connection closed. Reconnecting...');
+            //     if (rebootTimer) { clearTimeout(rebootTimer); }
+            //     rebootTimer = setTimeout(() => { initWebSocket(); }, 2000);
+            // };
         };
         initWebSocket();
     </script>
