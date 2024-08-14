@@ -61,10 +61,10 @@ async def video_stream(websocket, path):
                     frame = buffer[start_index:end_index]
                     buffer = buffer[end_index:]  # Remaining data
 
+                    await asyncio.sleep(0.05)
+
                     # Send the frame to the client
                     await websocket.send(frame)
-
-                    time.sleep(0.05)
 
                     start_index = buffer.find(b'\xFF\xD8')
                     end_index = buffer.find(b'\xFF\xD9')
