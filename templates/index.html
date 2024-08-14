@@ -21,6 +21,7 @@
             URL.revokeObjectURL(url);
         }
         const initWebSocket = () => {
+            const self = this;
             websocket = new WebSocket(websocketUrl);
             websocket.binaryType = 'blob';
             websocket.onopen = () => console.log('WebSocket connection established.');
@@ -30,13 +31,13 @@
                     const blob = new Blob([event.data], { type: 'image/jpeg' });
                     const url = URL.createObjectURL(blob);
                     videoElement.src = url;
-                    setTimeout(() => { myrevoke(videoElement.src); }, 100);
+                    setTimeout(() => { myrevoke(videoElement.src); }, 0);
                 }
             };
             websocket.onclose = () => {
                 console.log('WebSocket connection closed. Reconnecting...');
                 if (rebootTimer) { clearTimeout(rebootTimer); }
-                rebootTimer = setTimeout(() => { initWebSocket(); }, 100);
+                rebootTimer = setTimeout(() => { initWebSocket(); }, 500);
             };
         };
         initWebSocket();
