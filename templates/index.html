@@ -10,10 +10,10 @@
     <img id="video" src="" alt="Video stream not available" loading="lazy">
     <script>
         let websocket = null;
+        let revokeTimer = null;
+        let rebootTimer = null;
         const videoElement = document.getElementById('video');
         const websocketUrl = 'ws://192.168.0.124:8765';
-        let revokeTimer;
-        let rebootTimer;
         const myrevoke = (url) => URL.revokeObjectURL(url);
         const initWebSocket = () => {
             const self = this;
