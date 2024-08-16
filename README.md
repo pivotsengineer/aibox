@@ -34,11 +34,11 @@ After=network.target
 [Service]
 ExecStart=/usr/bin/python3 /home/sergienko/newton/app.py
 Restart=always
-User=sergienko
+User=root
 WorkingDirectory=/home/sergienko/newton
 StandardOutput=syslog
 StandardError=syslog
-SyslogIdentifier=app
+SyslogIdentifier=newton
 Environment=PYTHONUNBUFFERED=1
 
 [Install]
