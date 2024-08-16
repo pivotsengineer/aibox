@@ -18,13 +18,14 @@ SyslogIdentifier=sockets
 Environment=PYTHONUNBUFFERED=
 
 [Install]
-WantedBy=multi-user.target```
+WantedBy=multi-user.target
+```
 
 sudo touch /etc/systemd/system/newton.service
 
 Add the following content to the file:
 
-[Unit]
+```[Unit]
 Description=App Service
 After=network.target
 
@@ -40,6 +41,7 @@ Environment=PYTHONUNBUFFERED=1
 
 [Install]
 WantedBy=multi-user.target
+```
 
 # Service Management
 
