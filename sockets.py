@@ -52,7 +52,7 @@ async def video_stream(websocket, path):
         '-o', '-'  # Output to stdout
     ]
     buffer = bytearray()
-    chunk_size = 1024 * 128
+    chunk_size = 1024 * 64
     process = None
 
     try:
