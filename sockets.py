@@ -52,7 +52,7 @@ async def video_stream(websocket, path):
         '-o', '-'  # Output to stdout
     ]
     buffer = bytearray()
-    chunk_size = 1024 * 32
+    chunk_size = 1024 * 1024
     process = None
 
     try:
@@ -83,7 +83,7 @@ async def video_stream(websocket, path):
                 end_index = buffer.find(b'\xFF\xD9')  # JPEG end marker
                 
                 while start_index != -1 and end_index != -1 and end_index > start_index:
-                    end_index += 4  # Move past the end marker
+                    end_index += 2  # Move past the end marker
                     frame = buffer[start_index:end_index]
                     buffer = buffer[end_index:]  # Remaining data
 
