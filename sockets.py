@@ -22,7 +22,7 @@ def check_and_release_camera():
         except Exception as e:
             print(f"Error killing process {pid}: {e}")
 
-    time.sleep(1)  # Give the system a moment to release the camera
+    time.sleep(0.5)  # Give the system a moment to release the camera
 
 def cleanUp(process):
     if process:
@@ -38,7 +38,7 @@ def cleanUp(process):
         else:
             print("No 'libcamera-vid' process found to kill.")
 
-    time.sleep(1)
+    time.sleep(0.5)
 
 async def video_stream(websocket, path):
     command = [
@@ -52,7 +52,7 @@ async def video_stream(websocket, path):
         '-o', '-'  # Output to stdout
     ]
     buffer = bytearray()
-    chunk_size = 1024 * 4
+    chunk_size = 1024 * 8
     process = None
 
     try:
