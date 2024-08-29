@@ -3,16 +3,15 @@ import websockets
 import subprocess
 import time
 import os
+import cv2
+import numpy as np
 
 camera_device = "/dev/media1"
 afterCheckTimeuot = 0.25
 aftercleanUpTimeuot = 0.5
 afterSendTimeuot = 0.25
 chunk_size = 1024 * 24
-# 2 is a minimum
-# basically the higher the number, the bigger the buffer array. 
-# used for catching frames out of binary chank
-# ex: 4, 8, 16
+# basically the higher the number, the bigger the buffer array. 2 is a minimum.
 bufferMarker = 2
 # how many images in buffer
 bufferSize = 4
@@ -97,8 +96,25 @@ async def video_stream(websocket, path):
                     frame = buffer[start_index:end_index]
                     buffer = buffer[end_index:]  # Remaining data
 
+                    #### face recognition ####
+                    # Convert frame to numpy array
+                    nparr = np.frombuffer(frame_data, np.uint8)
+                    frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
+                    # Detect faces in the frame
+                    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                    faces = face_cascade.detectMultiScale(gray, 1.1, 4)
+
+                    # Draw rectangles around faces
+                    for (x, y, w, h) in faces:
+                        cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
+
+                    # Encode frame back to JPEG
+                    _, jpeg = cv2.imencode('.jpg', frame)
+                    frame_data = jpeg.tobytes()
+
                     # Send the frame to the client
-                    await websocket.send(frame)
+                    await websocket.send(frame_data)
 
                     start_index = buffer.find(b'\xFF\xD8')
                     end_index = buffer.find(b'\xFF\xD9')
