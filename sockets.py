@@ -6,6 +6,8 @@ import os
 import cv2
 import numpy as np
 
+face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+
 camera_device = "/dev/media1"
 afterCheckTimeuot = 0.25
 aftercleanUpTimeuot = 0.5
