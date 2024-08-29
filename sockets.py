@@ -13,7 +13,7 @@ chunk_size = 1024 * 24
 # basically the higher the number, the bigger the buffer array. 
 # used for catching frames out of binary chank
 # ex: 4, 8, 16
-bufferSize = 8
+bufferSize = 2
 
 def check_and_release_camera():
     # Check which process is using the camera device
