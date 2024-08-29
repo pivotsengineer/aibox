@@ -7,7 +7,6 @@ import cv2
 import numpy as np
 
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-
 camera_device = "/dev/media1"
 afterCheckTimeuot = 0.25
 aftercleanUpTimeuot = 0.5
@@ -102,15 +101,12 @@ async def video_stream(websocket, path):
                     # Convert frame to numpy array
                     nparr = np.frombuffer(frame_data, np.uint8)
                     frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-
                     # Detect faces in the frame
                     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                     faces = face_cascade.detectMultiScale(gray, 1.1, 4)
-
                     # Draw rectangles around faces
                     for (x, y, w, h) in faces:
                         cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
-
                     # Encode frame back to JPEG
                     _, jpeg = cv2.imencode('.jpg', frame)
                     frame_data = jpeg.tobytes()
