@@ -8,7 +8,7 @@ import numpy as np
 
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 camera_device = "/dev/media1"
-afterCheckTimeuot = 0.25
+afterCheckTimeuot = 0.5
 aftercleanUpTimeuot = 0.3
 afterSendTimeuot = 0.25
 chunk_size = 1024 * 128
