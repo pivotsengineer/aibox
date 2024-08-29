@@ -6,14 +6,14 @@ import os
 
 camera_device = "/dev/media1"
 afterCheckTimeuot = 0.25
-aftercleanUpTimeuot = 0.25
-afterSendTimeuot = 0.2
+aftercleanUpTimeuot = 0.5
+afterSendTimeuot = 0.25
 chunk_size = 1024 * 24
 # 2 is a minimum
 # basically the higher the number, the bigger the buffer array. 
 # used for catching frames out of binary chank
 # ex: 4, 8, 16
-bufferMarker = 2
+bufferMarker = 8
 # how many images in buffer
 bufferSize = 8
 
