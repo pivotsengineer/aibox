@@ -45,7 +45,7 @@ async def video_stream(websocket, path):
         '--codec', 'mjpeg',
         '--width', '640',
         '--height', '480',
-        '--framerate', '30',
+        '--framerate', '60',
         '-t', '10000',
         '--inline',
         '-o', '-'  # Output to stdout
