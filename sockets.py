@@ -11,8 +11,8 @@ camera_device = "/dev/media1"
 afterCheckTimeuot = 0.25
 aftercleanUpTimeuot = 0.3
 afterSendTimeuot = 0.25
-chunk_size = 1024 * 24
-# basically the higher the number, the bigger the buffer array. 2 is a minimum.
+chunk_size = 1024 * 128
+# basically the higher the number, the bigger the buffer array. 2 is a minimum # not sure here
 bufferMarker = 2
 # how many images in buffer
 bufferSize = 4
