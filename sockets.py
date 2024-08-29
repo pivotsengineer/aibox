@@ -8,6 +8,11 @@ camera_device = "/dev/media1"
 afterCheckTimeuot = 0.5
 aftercleanUpTimeuot = 0.5
 chunk_size = 1024 * 8
+# 2 is a minimum
+# basically the higher the number, the bigger the buffer array. 
+# used for catching frames out of binary chank
+# ex: 4, 8, 16
+bufferSize = 2 
 
 def check_and_release_camera():
     # Check which process is using the camera device
@@ -85,7 +90,7 @@ async def video_stream(websocket, path):
                 end_index = buffer.find(b'\xFF\xD9')  # JPEG end marker
                 
                 while start_index != -1 and end_index != -1 and end_index > start_index:
-                    end_index += 2  # Move past the end marker
+                    end_index += bufferSize  # Move past the end marker
                     frame = buffer[start_index:end_index]
                     buffer = buffer[end_index:]  # Remaining data
 
