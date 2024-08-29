@@ -9,15 +9,11 @@
     <h1>Live Camera Stream</h1>
     <img id="video" src="" alt="Video stream not available" loading="lazy">
     <script>
-        let websocket = null;
-        let revokeTimer = null;
-        let rebootTimer = null;
         const videoElement = document.getElementById('video');
         const websocketUrl = 'ws://192.168.0.124:8765';
         const myrevoke = (url) => URL.revokeObjectURL(url);
         const initWebSocket = () => {
-            const self = this;
-            websocket = new WebSocket(websocketUrl);
+            const websocket = new WebSocket(websocketUrl);
             websocket.binaryType = 'blob';
             websocket.onopen = () => console.log('WebSocket connection established.');
             websocket.onclose = () => console.log('WebSocket connection closed');
