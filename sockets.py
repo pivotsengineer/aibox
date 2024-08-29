@@ -7,6 +7,7 @@ import os
 camera_device = "/dev/media1"
 afterCheckTimeuot = 0.5
 aftercleanUpTimeuot = 0.5
+afterSendTimeuot = 0.2
 chunk_size = 1024 * 24
 # how many images in buffer
 # 2 is a minimum
@@ -101,10 +102,10 @@ async def video_stream(websocket, path):
                     start_index = buffer.find(b'\xFF\xD8')
                     end_index = buffer.find(b'\xFF\xD9')
 
-                    if len(buffer) > chunk_size * bufferSize:
+                    if len(buffer) > chunk_size * 4:
                         buffer = buffer[-chunk_size:]
 
-                    await asyncio.sleep(0.5)
+                    await asyncio.sleep(afterSendTimeuot)
             
             # Clean up after process terminates
             cleanUp(process)
