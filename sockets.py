@@ -94,7 +94,7 @@ async def video_stream(websocket, path):
                 
                 while start_index != -1 and end_index != -1 and end_index > start_index:
                     end_index += bufferMarker  # Move past the end marker
-                    frame = buffer[start_index:end_index]
+                    frame_data = buffer[start_index:end_index]
                     buffer = buffer[end_index:]  # Remaining data
 
                     #### face recognition ####
