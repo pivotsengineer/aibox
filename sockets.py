@@ -44,8 +44,8 @@ async def video_stream(websocket, path):
     command = [
         'libcamera-vid',
         '--codec', 'mjpeg',
-        '--width', '800',
-        '--height', '600',
+        '--width', '640',
+        '--height', '480',
         '--framerate', '30',
         '-t', '10000',
         '--inline',
