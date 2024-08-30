@@ -16,6 +16,18 @@ start_index_regexp = b'\xFF\xD8'  # JPEG start marker
 end_index_regexp = b'\xFF\xD9'  # JPEG end marker
 
 def check_and_release_camera():
+
+    # Ensure all camera-related processes are killed
+    try:
+        subprocess.run(['sudo', 'killall', 'pipewire', 'wireplumber'], check=True)
+    except subprocess.CalledProcessError as e:
+        if e.returncode != 1:
+            raise  # Re-raise if the error was due to another reason
+        else:
+            print("No 'libcamera-vid' process found to kill.")
+
+    time.sleep(aftercleanUpTimeuot)
+
     # Check which process is using the camera device
     result = subprocess.run(['lsof', camera_device], capture_output=True, text=True)
     lines = result.stdout.strip().split('\n')
@@ -33,21 +45,10 @@ def check_and_release_camera():
 
     time.sleep(afterCheckTimeuot)  # Give the system a moment to release the camera
 
-def cleanUp(process):
+def terminateProcess(process):
     if process:
         process.terminate()  # Ensure the process is terminated
         process.wait()  # Wait for the process to terminate
-
-    # Ensure all camera-related processes are killed
-    try:
-        subprocess.run(['sudo', 'killall', 'pipewire', 'wireplumber'], check=True)
-    except subprocess.CalledProcessError as e:
-        if e.returncode != 1:
-            raise  # Re-raise if the error was due to another reason
-        else:
-            print("No 'libcamera-vid' process found to kill.")
-
-    time.sleep(aftercleanUpTimeuot)
 
 async def video_stream(websocket, path):
     command = [
@@ -95,6 +96,8 @@ async def video_stream(websocket, path):
                     frame_data = buffer[start_index:end_index]
                     buffer = buffer[end_index:]  # Remaining data
 
+                    print('Frame data sent')
+
                     # Send the frame to the client
                     await websocket.send(frame_data)
 
@@ -105,9 +108,9 @@ async def video_stream(websocket, path):
                         buffer = buffer[-chunk_size:]
 
                     await asyncio.sleep(afterSendTimeuot)
-            
+
             # Clean up after process terminates
-            cleanUp(process)
+            terminateProcess(process)
             
     except Exception as e:
         print(f"An error occurred: {e}")
