@@ -6,15 +6,14 @@ import os
 import cv2
 import numpy as np
 
-face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 camera_device = "/dev/media1"
-afterCheckTimeuot = 0.3
-afterSendTimeuot = 0.2
-chunk_size = 1024 * 8
-# basically the higher the number, the bigger the buffer array. 2 is a minimum # not sure here
-bufferMarker = 2
-# how many images in buffer
-bufferSize = 4
+afterCheckTimeuot = 0.25
+aftercleanUpTimeuot = 0.5
+afterSendTimeuot = 0.25
+chunk_size = 1024 * 32
+bufferSize = 4 # how many images in buffer
+start_index_regexp = b'\xFF\xD8'  # JPEG start marker
+end_index_regexp = b'\xFF\xD9'  # JPEG end marker
 
 def check_and_release_camera():
     # Check which process is using the camera device
@@ -38,6 +37,17 @@ def cleanUp(process):
     if process:
         process.terminate()  # Ensure the process is terminated
         process.wait()  # Wait for the process to terminate
+
+    # Ensure all camera-related processes are killed
+    try:
+        subprocess.run(['sudo', 'killall', 'pipewire', 'wireplumber'], check=True)
+    except subprocess.CalledProcessError as e:
+        if e.returncode != 1:
+            raise  # Re-raise if the error was due to another reason
+        else:
+            print("No 'libcamera-vid' process found to kill.")
+
+    time.sleep(aftercleanUpTimeuot)
 
 async def video_stream(websocket, path):
     command = [
@@ -67,6 +77,7 @@ async def video_stream(websocket, path):
                 
                 if not chunk:
                     print('No frame data received')
+                    await asyncio.sleep(0.02)
                     return_code = process.poll()
                     if return_code is not None:
                         print(f"libcamera-vid terminated with return code: {return_code}")
@@ -76,33 +87,19 @@ async def video_stream(websocket, path):
                 else:
                     buffer.extend(chunk)
 
-                start_index = buffer.find(b'\xFF\xD8')  # JPEG start marker
-                end_index = buffer.find(b'\xFF\xD9')  # JPEG end marker
+                start_index = buffer.find(start_index_regexp)  # JPEG start marker
+                end_index = buffer.find(end_index_regexp)  # JPEG end marker
                 
                 while start_index != -1 and end_index != -1 and end_index > start_index:
-                    end_index += bufferMarker  # Move past the end marker
+                    end_index += bufferSize  # Move past the end marker
                     frame_data = buffer[start_index:end_index]
                     buffer = buffer[end_index:]  # Remaining data
-
-                    #### face recognition ####
-                    # Convert frame to numpy array
-                    # nparr = np.frombuffer(frame_data, np.uint8)
-                    # frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-                    # # Detect faces in the frame
-                    # gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                    # faces = face_cascade.detectMultiScale(gray, 1.1, 4)
-                    # # Draw rectangles around faces
-                    # for (x, y, w, h) in faces:
-                    #     cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 1)
-                    # # Encode frame back to JPEG
-                    # _, jpeg = cv2.imencode('.jpg', frame)
-                    # frame_data = jpeg.tobytes()
 
                     # Send the frame to the client
                     await websocket.send(frame_data)
 
-                    start_index = buffer.find(b'\xFF\xD8')
-                    end_index = buffer.find(b'\xFF\xD9')
+                    start_index = buffer.find(start_index_regexp)
+                    end_index = buffer.find(end_index_regexp)
 
                     if len(buffer) > chunk_size * bufferSize:
                         buffer = buffer[-chunk_size:]
