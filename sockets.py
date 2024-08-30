@@ -11,7 +11,7 @@ afterCheckTimeuot = 0.25
 aftercleanUpTimeuot = 0.5
 afterSendTimeuot = 0.25
 chunk_size = 1024 * 32
-bufferSize = 4 # how many images in buffer
+bufferSize = 2 # how many images in buffer
 start_index_regexp = b'\xFF\xD8'  # JPEG start marker
 end_index_regexp = b'\xFF\xD9'  # JPEG end marker
 
