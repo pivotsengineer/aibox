@@ -8,7 +8,6 @@ import numpy as np
 
 camera_device = "/dev/media1"
 afterCheckTimeuot = 0.25
-aftercleanUpTimeuot = 0.5
 afterSendTimeuot = 0.25
 chunk_size = 1024 * 32
 bufferSize = 2 # how many images in buffer
@@ -25,8 +24,6 @@ def check_and_release_camera():
             raise  # Re-raise if the error was due to another reason
         else:
             print("No 'libcamera-vid' process found to kill.")
-
-    time.sleep(aftercleanUpTimeuot)
 
     # Check which process is using the camera device
     result = subprocess.run(['lsof', camera_device], capture_output=True, text=True)
