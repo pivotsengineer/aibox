@@ -53,7 +53,7 @@ async def capture_frames(queue: asyncio.Queue):
         '--width', '640',
         '--height', '480',
         '--framerate', '30',
-        '-t', '10000',
+        '-t', '0',
         '--inline',
         '-o', '-'  # Output to stdout
     ]
