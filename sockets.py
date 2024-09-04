@@ -21,8 +21,10 @@ def release_camera():
         subprocess.run(['sudo', 'fuser', '-k', camera_device], check=True)
     except subprocess.CalledProcessError as e:
         if e.returncode != 1:
-            raise  # If the error is for another reason, re-raise it
-    time.sleep(afterCheckTimeuot)  # Give the system time to release the camera
+            # If the error is for another reason, re-raise it
+            raise 
+    # Give the system time to release the camera
+    time.sleep(afterCheckTimeuot)
 
 def check_and_release_camera():
     release_camera()
@@ -52,7 +54,7 @@ async def capture_frames(queue: asyncio.Queue):
         '--codec', 'mjpeg',
         '--width', '640',
         '--height', '480',
-        '--framerate', '30',
+        '--framerate', '60',
         '-t', '0',
         '--inline',
         '-o', '-'  # Output to stdout
