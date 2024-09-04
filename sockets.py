@@ -82,19 +82,19 @@ async def capture_frames(queue: asyncio.Queue):
                 start_index = buffer.find(start_index_regexp)
                 end_index = buffer.find(end_index_regexp)
 
-                while start_index != -1 and end_index != -1 and end_index > start_index:
-                    end_index += bufferSize
-                    frame_data = buffer[start_index:end_index]
-                    buffer = buffer[end_index:]
-
-                    await queue.put(frame_data)
+                while True:
                     start_index = buffer.find(start_index_regexp)
                     end_index = buffer.find(end_index_regexp)
+                    if start_index != -1 and end_index != -1 and end_index > start_index:
+                        end_index += len(end_index_regexp)
+                        frame_data = buffer[start_index:end_index]
+                        buffer = buffer[end_index:]
+                        await queue.put(frame_data)
+                    else:
+                        break   
 
-                    if len(buffer) > chunk_size * 8:
-                        buffer = buffer[-chunk_size:]
-
-                    await asyncio.sleep(afterSendTimeuot)
+                if len(buffer) > chunk_size * 8:
+                    buffer = buffer[-chunk_size:]
 
         except Exception as e:
             print(f"An error occurred: {e}")
@@ -107,6 +107,7 @@ async def send_frames(queue: asyncio.Queue, websocket):
     while True:
         frame_data = await queue.get()
         await websocket.send(frame_data)
+        print('Frame data sent')
         queue.task_done()
 
 async def video_stream(websocket, path):
