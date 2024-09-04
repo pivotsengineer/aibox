@@ -9,7 +9,7 @@ import numpy as np
 camera_device = "/dev/media1"
 afterCheckTimeuot = 0.5
 afterSendTimeuot = 0.25
-chunk_size = 1024 * 32
+chunk_size = 1024 * 4
 onFrameErrorTimeout = 0.02
 bufferSize = 8 # how many images in buffer
 start_index_regexp = b'\xFF\xD8'  # JPEG start marker
