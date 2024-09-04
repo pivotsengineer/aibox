@@ -11,7 +11,7 @@ afterCheckTimeuot = 0.5
 afterSendTimeuot = 0.25
 chunk_size = 1024 * 128
 onFrameErrorTimeout = 0.02
-bufferSize = 4 # how many images in buffer
+bufferSize = 8 # how many images in buffer
 start_index_regexp = b'\xFF\xD8'  # JPEG start marker
 end_index_regexp = b'\xFF\xD9'  # JPEG end marker
 
