@@ -10,6 +10,7 @@ camera_device = "/dev/media1"
 afterCheckTimeuot = 0.25
 afterSendTimeuot = 0.25
 chunk_size = 1024 * 32
+onFrameErrorTimeout = 0.02
 bufferSize = 2 # how many images in buffer
 start_index_regexp = b'\xFF\xD8'  # JPEG start marker
 end_index_regexp = b'\xFF\xD9'  # JPEG end marker
@@ -75,7 +76,7 @@ async def video_stream(websocket, path):
                 
                 if not chunk:
                     print('No frame data received')
-                    await asyncio.sleep(0.02)
+                    await asyncio.sleep(onFrameErrorTimeout)
                     return_code = process.poll()
                     if return_code is not None:
                         print(f"libcamera-vid terminated with return code: {return_code}")
