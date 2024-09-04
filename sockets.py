@@ -102,7 +102,7 @@ async def video_stream(websocket, path):
                     start_index = buffer.find(start_index_regexp)
                     end_index = buffer.find(end_index_regexp)
 
-                    if len(buffer) > chunk_size * bufferSize:
+                    if len(buffer) > chunk_size * 8: # if 
                         buffer = buffer[-chunk_size:]
 
                     await asyncio.sleep(afterSendTimeuot)
