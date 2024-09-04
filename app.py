@@ -1,5 +1,4 @@
 from flask import Flask, render_template, Response
-from sockets import video_stream
 
 app = Flask(__name__)
 
