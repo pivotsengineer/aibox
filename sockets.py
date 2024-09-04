@@ -55,6 +55,7 @@ async def capture_frames(queue: asyncio.Queue):
         '--width', '640',
         '--height', '480',
         '--framerate', '60',
+        '--roi', '0.0,0.0,1.0,1.0',  # Full sensor readout (no crop)
         '-t', '0',
         '--inline',
         '-o', '-'  # Output to stdout
