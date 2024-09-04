@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 
 camera_device = "/dev/media1"
-afterCheckTimeuot = 0.25
+afterCheckTimeuot = 0.5
 afterSendTimeuot = 0.25
 chunk_size = 1024 * 32
 onFrameErrorTimeout = 0.02
@@ -15,21 +15,20 @@ bufferSize = 2 # how many images in buffer
 start_index_regexp = b'\xFF\xD8'  # JPEG start marker
 end_index_regexp = b'\xFF\xD9'  # JPEG end marker
 
-def check_and_release_camera():
-
-    # Ensure all camera-related processes are killed
+def release_camera():
+    # Kill any lingering processes that might be using the camera
     try:
-        subprocess.run(['sudo', 'killall', 'pipewire', 'wireplumber'], check=True)
+        subprocess.run(['sudo', 'fuser', '-k', camera_device], check=True)
     except subprocess.CalledProcessError as e:
         if e.returncode != 1:
-            raise  # Re-raise if the error was due to another reason
-        else:
-            print("No 'libcamera-vid' process found to kill.")
+            raise  # If the error is for another reason, re-raise it
+    time.sleep(afterCheckTimeuot)  # Give the system time to release the camera
 
+def check_and_release_camera():
+    release_camera()
     # Check which process is using the camera device
     result = subprocess.run(['lsof', camera_device], capture_output=True, text=True)
     lines = result.stdout.strip().split('\n')
-    
     # Skip the header and get process info
     for line in lines[1:]:
         parts = line.split()
@@ -40,7 +39,6 @@ def check_and_release_camera():
             os.kill(pid, 9)
         except Exception as e:
             print(f"Error killing process {pid}: {e}")
-
     time.sleep(afterCheckTimeuot)  # Give the system a moment to release the camera
 
 def terminateProcess(process):
