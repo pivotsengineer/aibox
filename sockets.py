@@ -94,7 +94,7 @@ async def capture_frames(queue: asyncio.Queue):
                     await queue.put(frame_data)
 
                 # Avoid excessive buffer growth
-                if len(buffer) > chunk_size * 8:
+                if len(buffer) > chunk_size * 4:
                     buffer = buffer[-chunk_size:]
 
         except Exception as e:
