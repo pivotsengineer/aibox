@@ -116,12 +116,12 @@ async def send_frames(queue: asyncio.Queue, websocket):
 
     while True:
         frame_data = await queue.get()
-        recognition_results = None
+
         current_time = time.time()
         if current_time - last_recognition_time >= recognition_interval:
             # Send frame to recognition server
             try:
-                response = requests.post(recognition_server_url, files={'image_url': BytesIO(frame_data)})
+                response = requests.post(recognition_server_url, files={'image': BytesIO(frame_data)})
                 if response.status_code == 200:
                     recognition_results = response.json()
                     print("Recognition results:", recognition_results)
@@ -132,13 +132,9 @@ async def send_frames(queue: asyncio.Queue, websocket):
             
             last_recognition_time = current_time  # Update last recognition time
 
-        payload = {
-            frame_data, recognition_results
-        }
-
         # Send frame data to websocket
-        await websocket.send(payload)
-        
+        await websocket.send(frame_data)
+        print(".")
         queue.task_done()
 
 async def ping_websocket(websocket):
