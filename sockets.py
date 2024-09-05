@@ -14,6 +14,25 @@ start_index_regexp = b'\xFF\xD8'  # JPEG start marker
 end_index_regexp = b'\xFF\xD9'  # JPEG end marker
 ping_interval = 30  # Ping every 30 seconds to keep the connection alive
 
+def check_and_release_camera():
+    release_camera()
+    # Check which process is using the camera device
+    result = subprocess.run(['lsof', camera_device], capture_output=True, text=True)
+    lines = result.stdout.strip().split('\n')
+    if len(lines) > 1:
+        # Skip the header and get process info
+        for line in lines[1:]:
+            parts = line.split()
+            pid = int(parts[1])
+            command = parts[0]
+            print(f"Killing process {command} with PID {pid} using {camera_device}")
+            try:
+                os.kill(pid, 9)
+                time.sleep(0.5)  # Give system time to release the resource
+            except Exception as e:
+                print(f"Error killing process {pid}: {e}")
+        time.sleep(afterCheckTimeout)
+
 def release_camera():
     try:
         subprocess.run(['sudo', 'fuser', '-k', camera_device], check=True)
@@ -44,9 +63,7 @@ async def capture_frames(queue: asyncio.Queue):
 
     while True:
         try:
-            release_camera()  # Ensure the camera is free
-
-            time.sleep(afterCheckTimeout)
+            check_and_release_camera()
 
             process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
