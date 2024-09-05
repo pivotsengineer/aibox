@@ -2,7 +2,7 @@ import os
 from ultralytics import YOLO
 
 current_dir = os.getcwd()
-modelPath = "runs/classify/train/weights/best.pt"
+modelPath = current_dir + "/runs/classify/train/weights/best.pt"
 testImagePath = "dice-3.jpg"
 
 # Check if the file exists
