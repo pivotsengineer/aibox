@@ -127,6 +127,8 @@ async def video_stream(websocket, path):
     consumer = asyncio.create_task(send_frames(queue, websocket))
     pinger = asyncio.create_task(ping_websocket(websocket))  # Ping WebSocket periodically
 
+    print("vs")
+
     await asyncio.gather(producer, consumer, pinger)
 
 async def main():
