@@ -23,6 +23,31 @@
                     const blob = new Blob([event.data], { type: 'image/jpeg' });
                     const url = URL.createObjectURL(blob);
                     videoElement.src = url;
+
+                    // Perform recognition every 5 seconds
+                    const currentTime = Date.now();
+                    if (currentTime - lastRecognitionTime >= recognitionInterval) {
+                        try {
+                            const formData = new FormData();
+                            formData.append('image', blob, 'image.jpg');
+                            const response = fetch(recognitionServerUrl, {
+                                method: 'POST',
+                                body: formData
+                            });
+
+                            if (response.ok) {
+                                const data = response.json();
+                                console.log("Recognition results:", data);
+                            } else {
+                                console.error(`Error from recognition server: ${response.status}`);
+                            }
+                        } catch (error) {
+                            console.error('Error sending frame to recognition server:', error);
+                        }
+
+                        lastRecognitionTime = currentTime;
+                    }
+
                     setTimeout(() => { myrevoke(videoElement.src); }, 1000);
                 }
             };
