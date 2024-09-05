@@ -134,7 +134,6 @@ async def send_frames(queue: asyncio.Queue, websocket):
 
         # Send frame data to websocket
         await websocket.send(frame_data)
-        print(".")
         queue.task_done()
 
 async def ping_websocket(websocket):
