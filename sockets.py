@@ -3,6 +3,8 @@ import websockets
 import subprocess
 import time
 import os
+import requests
+from io import BytesIO
 
 camera_device = "/dev/media1"
 afterCheckTimeout = 2
@@ -13,14 +15,14 @@ bufferSize = 8
 start_index_regexp = b'\xFF\xD8'  # JPEG start marker
 end_index_regexp = b'\xFF\xD9'  # JPEG end marker
 ping_interval = 30  # Ping every 30 seconds to keep the connection alive
+recognition_server_url = 'http://192.168.0.152:8001/predict'  # Your recognition server
+recognition_interval = 1  # Time interval to send frames for recognition (in seconds)
 
 def check_and_release_camera():
     release_camera()
-    # Check which process is using the camera device
     result = subprocess.run(['lsof', camera_device], capture_output=True, text=True)
     lines = result.stdout.strip().split('\n')
     if len(lines) > 1:
-        # Skip the header and get process info
         for line in lines[1:]:
             parts = line.split()
             pid = int(parts[1])
@@ -28,7 +30,7 @@ def check_and_release_camera():
             print(f"Killing process {command} with PID {pid} using {camera_device}")
             try:
                 os.kill(pid, 9)
-                time.sleep(0.5)  # Give system time to release the resource
+                time.sleep(0.5)
             except Exception as e:
                 print(f"Error killing process {pid}: {e}")
 
@@ -38,7 +40,6 @@ def release_camera():
     except subprocess.CalledProcessError as e:
         if e.returncode != 1:
             raise
-        
     time.sleep(afterCheckTimeout)
 
 def terminateProcess(process):
@@ -53,10 +54,10 @@ async def capture_frames(queue: asyncio.Queue):
         '--width', '640',
         '--height', '480',
         '--framerate', '60',
-        '--roi', '0.0,0.0,1.0,1.0',  # Full sensor readout (no crop)
+        '--roi', '0.0,0.0,1.0,1.0',
         '-t', '0',
         '--inline',
-        '-o', '-'  # Output to stdout
+        '-o', '-'
     ]
     buffer = bytearray()
     process = None
@@ -113,16 +114,33 @@ async def capture_frames(queue: asyncio.Queue):
 async def send_frames(queue: asyncio.Queue, websocket):
     while True:
         frame_data = await queue.get()
+
+        current_time = time.time()
+        if current_time - last_recognition_time >= recognition_interval:
+            # Send frame to recognition server
+            try:
+                response = requests.post(recognition_server_url, files={'image': BytesIO(frame_data)})
+                if response.status_code == 200:
+                    recognition_results = response.json()
+                    print("Recognition results:", recognition_results)
+                else:
+                    print(f"Error from recognition server: {response.status_code}")
+            except Exception as e:
+                print(f"Error sending frame to recognition server: {e}")
+            
+            last_recognition_time = current_time  # Update last recognition time
+
+        # Send frame data to websocket
         await websocket.send(frame_data)
-        print('.')
+        print('Frame sent to websocket.')
         queue.task_done()
 
 async def ping_websocket(websocket):
     while True:
         try:
-            await websocket.ping()  # Send a ping frame
+            await websocket.ping()
             print("WebSocket ping sent")
-            await asyncio.sleep(ping_interval)  # Wait for the interval before sending the next ping
+            await asyncio.sleep(ping_interval)
         except Exception as e:
             print(f"Error sending WebSocket ping: {e}")
             break
@@ -131,7 +149,7 @@ async def video_stream(websocket, path):
     queue = asyncio.Queue(maxsize=bufferSize)
     producer = asyncio.create_task(capture_frames(queue))
     consumer = asyncio.create_task(send_frames(queue, websocket))
-    pinger = asyncio.create_task(ping_websocket(websocket))  # Ping WebSocket periodically
+    pinger = asyncio.create_task(ping_websocket(websocket))
 
     await asyncio.gather(producer, consumer, pinger)
 
