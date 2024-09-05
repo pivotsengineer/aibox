@@ -121,7 +121,7 @@ async def send_frames(queue: asyncio.Queue, websocket):
         if current_time - last_recognition_time >= recognition_interval:
             # Send frame to recognition server
             try:
-                response = requests.post(recognition_server_url, files={'image': BytesIO(frame_data)})
+                response = requests.post(recognition_server_url, files={'image_url': BytesIO(frame_data)})
                 if response.status_code == 200:
                     recognition_results = response.json()
                     print("Recognition results:", recognition_results)
