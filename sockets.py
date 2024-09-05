@@ -112,9 +112,34 @@ async def capture_frames(queue: asyncio.Queue):
             print(f"Retrying... ({retry_attempts}/{max_retries})")
 
 async def send_frames(queue: asyncio.Queue, websocket):
+    last_recognition_time = time.time()  # Initialize last recognition time
+
     while True:
         frame_data = await queue.get()
-        await websocket.send(frame_data)
+
+        current_time = time.time()
+        if current_time - last_recognition_time >= recognition_interval:
+            # Send frame to recognition server
+            try:
+                response = requests.post(recognition_server_url, files={'image_url': BytesIO(frame_data)})
+                if response.status_code == 200:
+                    recognition_results = response.json()
+                    print("Recognition results:", recognition_results)
+                else:
+                    print(f"Error from recognition server: {response.status_code}")
+            except Exception as e:
+                print(f"Error sending frame to recognition server: {e}")
+            
+            last_recognition_time = current_time  # Update last recognition time
+
+        payload = {
+            'image': frame_data,
+            'recognition': recognition_results
+        }
+
+        # Send frame data to websocket
+        await websocket.send(payload)
+        
         queue.task_done()
 
 async def ping_websocket(websocket):
