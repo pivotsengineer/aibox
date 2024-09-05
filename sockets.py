@@ -118,6 +118,13 @@ async def send_frames(queue: asyncio.Queue, websocket):
         frame_data = await queue.get()
 
         current_time = time.time()
+
+         # Initialize recognition_results with a default value
+        recognition_results = {
+            'class': 'unknown',
+            'confidence': 0.0
+        }
+
         if current_time - last_recognition_time >= recognition_interval:
             # Send frame to recognition server
             try:
