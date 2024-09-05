@@ -1,4 +1,5 @@
 import asyncio
+import json
 import websockets
 import subprocess
 import time
@@ -116,8 +117,9 @@ async def send_frames(queue: asyncio.Queue, websocket):
 
     while True:
         frame_data = await queue.get()
-        
         current_time = time.time()
+        recognition_results = {}
+
         if current_time - last_recognition_time >= recognition_interval:
             # Send frame to recognition server
             try:
@@ -129,11 +131,17 @@ async def send_frames(queue: asyncio.Queue, websocket):
                     print(f"Error from recognition server: {response.status_code}")
             except Exception as e:
                 print(f"Error sending frame to recognition server: {e}")
-            
-            last_recognition_time = current_time  # Update last recognition time
 
-        # Send frame data to websocket
-        await websocket.send(frame_data)
+            last_recognition_time = current_time  # Update last recognition time
+        
+        # Create a message with both frame data and recognition results
+        message = {
+            'frame': frame_data.decode('latin1'),  # Convert bytes to a string (or use base64 encoding if preferred)
+            'recognition': recognition_results
+        }
+
+        # Send message as JSON
+        await websocket.send(json.dumps(message))
         queue.task_done()
 
 async def ping_websocket(websocket):

@@ -19,10 +19,11 @@
             websocket.onclose = () => console.log('WebSocket connection closed');
             websocket.onerror = (error) => console.error('WebSocket error:', error);
             websocket.onmessage = (event) => {
-                if(event.data instanceof Blob) {
-                    const blob = new Blob([event.data], { type: 'image/jpeg' });
+                if(event.frame instanceof Blob) {
+                    const blob = new Blob([event.frame], { type: 'image/jpeg' });
                     const url = URL.createObjectURL(blob);
                     videoElement.src = url;
+                    if(event.recognition) { console.log(event.recognition); }
                     setTimeout(() => { myrevoke(videoElement.src); }, 1000);
                 }
             };
