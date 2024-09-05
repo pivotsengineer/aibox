@@ -1,5 +1,4 @@
 import asyncio
-import json
 import websockets
 import subprocess
 import time
@@ -114,11 +113,10 @@ async def capture_frames(queue: asyncio.Queue):
 
 async def send_frames(queue: asyncio.Queue, websocket):
     last_recognition_time = time.time()  # Initialize last recognition time
-    recognition_results = None
 
     while True:
         frame_data = await queue.get()
-
+        
         current_time = time.time()
         if current_time - last_recognition_time >= recognition_interval:
             # Send frame to recognition server
@@ -134,15 +132,8 @@ async def send_frames(queue: asyncio.Queue, websocket):
             
             last_recognition_time = current_time  # Update last recognition time
 
-        payload = {
-            'image': frame_data,
-            'recognition': recognition_results
-        }
-
-        payload_json = json.dumps(payload)
-
         # Send frame data to websocket
-        await websocket.send(payload_json)
+        await websocket.send(frame_data)
         print(".")
         queue.task_done()
 
