@@ -27,11 +27,13 @@
                 if (typeof event.data === 'string') {
                     // Handle JSON data (recognition results)
                     let message = JSON.parse(event.data);
-                    let recognitionResults = message.recognition;
-
-                    // Display recognition results
-                    let resultsDiv = document.getElementById('recognitionResults');
-                    resultsDiv.innerHTML = JSON.stringify(recognitionResults, null, 2);
+                    if(message.recognition) {
+                        let recognitionResults = message.recognition;
+                        // Display recognition results
+                        let resultsDiv = document.getElementById('recognitionResults');
+                        resultsDiv.innerHTML = JSON.stringify(recognitionResults, null, 2);
+                        console.log(message)
+                    }
                     isReceivingFrame = true; // Expecting frame data next
                 } else
                 if (event.data instanceof ArrayBuffer) {
