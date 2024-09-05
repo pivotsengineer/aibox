@@ -112,6 +112,7 @@ async def capture_frames(queue: asyncio.Queue):
             print(f"Retrying... ({retry_attempts}/{max_retries})")
 
 async def send_frames(queue: asyncio.Queue, websocket):
+    last_recognition_time = time.time()  # Initialize last recognition time
     while True:
         frame_data = await queue.get()
 
