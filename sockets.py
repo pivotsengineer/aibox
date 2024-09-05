@@ -132,8 +132,13 @@ async def send_frames(queue: asyncio.Queue, websocket):
             
             last_recognition_time = current_time  # Update last recognition time
 
+        payload = {
+            'image': frame_data,
+            'recognition': recognition_results
+        }
+
         # Send frame data to websocket
-        await websocket.send(frame_data)
+        await websocket.send(payload)
         print(".")
         queue.task_done()
 

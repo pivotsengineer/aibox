@@ -24,7 +24,7 @@
                     const url = URL.createObjectURL(blob);
                     videoElement.src = url;
 
-                    console.log(event.data.recognition);
+                    console.log(event.data);
 
                     setTimeout(() => { myrevoke(videoElement.src); }, 1000);
                 }
