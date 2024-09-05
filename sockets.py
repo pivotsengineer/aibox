@@ -116,10 +116,7 @@ async def send_frames(queue: asyncio.Queue, websocket):
 
     while True:
         frame_data = await queue.get()
-
         current_time = time.time()
-
-         # Initialize recognition_results with a default value
         recognition_results = {
             'class': 'unknown',
             'confidence': 0.0
