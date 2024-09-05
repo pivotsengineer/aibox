@@ -108,7 +108,7 @@ async def send_frames(queue: asyncio.Queue, websocket):
     while True:
         frame_data = await queue.get()
         await websocket.send(frame_data)
-        print('Frame data sent')
+        await asyncio.sleep(afterSendTimeout)
         queue.task_done()
 
 async def ping_websocket(websocket):
@@ -126,8 +126,6 @@ async def video_stream(websocket, path):
     producer = asyncio.create_task(capture_frames(queue))
     consumer = asyncio.create_task(send_frames(queue, websocket))
     pinger = asyncio.create_task(ping_websocket(websocket))  # Ping WebSocket periodically
-
-    print("vs")
 
     await asyncio.gather(producer, consumer, pinger)
 
