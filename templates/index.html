@@ -11,15 +11,21 @@
     <script>
         const videoElement = document.getElementById('video');
         const websocketUrl = 'ws://192.168.0.124:8765';
-        const myrevoke = (url) => URL.revokeObjectURL(url);
+        const recognitionServerUrl = 'http://localhost:8001/predict';  // Update with your recognition server URL
+        const recognitionInterval = 5000;  // Time interval for recognition (in milliseconds)
+
         const initWebSocket = () => {
             const websocket = new WebSocket(websocketUrl);
             websocket.binaryType = 'blob';
+
             websocket.onopen = () => console.log('WebSocket connection established.');
             websocket.onclose = () => console.log('WebSocket connection closed');
             websocket.onerror = (error) => console.error('WebSocket error:', error);
-            websocket.onmessage = (event) => {
-                if(event.data instanceof Blob) {
+
+            let lastRecognitionTime = Date.now();
+
+            websocket.onmessage = async (event) => {
+                if (event.data instanceof Blob) {
                     const blob = new Blob([event.data], { type: 'image/jpeg' });
                     const url = URL.createObjectURL(blob);
                     videoElement.src = url;
@@ -29,14 +35,14 @@
                     if (currentTime - lastRecognitionTime >= recognitionInterval) {
                         try {
                             const formData = new FormData();
-                            formData.append('image', blob, 'image.jpg');
-                            const response = fetch(recognitionServerUrl, {
+                            formData.append('image_url', blob, 'image.jpg');
+                            const response = await fetch(recognitionServerUrl, {
                                 method: 'POST',
                                 body: formData
                             });
 
                             if (response.ok) {
-                                const data = response.json();
+                                const data = await response.json();
                                 console.log("Recognition results:", data);
                             } else {
                                 console.error(`Error from recognition server: ${response.status}`);
@@ -47,11 +53,10 @@
 
                         lastRecognitionTime = currentTime;
                     }
-
-                    setTimeout(() => { myrevoke(videoElement.src); }, 1000);
                 }
             };
         };
+
         initWebSocket();
     </script>
 </body>
