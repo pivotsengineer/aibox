@@ -133,15 +133,16 @@ async def send_frames(queue: asyncio.Queue, websocket):
                 print(f"Error sending frame to recognition server: {e}")
 
             last_recognition_time = current_time  # Update last recognition time
-        
-        # Create a message with both frame data and recognition results
-        message = {
-            'frame': frame_data,  # Convert bytes to a string (or use base64 encoding if preferred)
-            'recognition': recognition_results
-        }
 
-        # Send message as JSON
-        await websocket.send(json.dumps(message))
+            message = {
+                'recognition': recognition_results
+            }
+
+            # Send recognition results as JSON
+            await websocket.send(json.dumps(message))
+        
+        # Send raw binary frame data
+        await websocket.send(frame_data)
         queue.task_done()
 
 async def ping_websocket(websocket):

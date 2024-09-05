@@ -3,32 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Stream</title>
+    <title>Video Stream</title>
 </head>
 <body>
-    <h1>Live Camera Stream</h1>
-    <img id="video" src="" alt="Video stream not available" loading="lazy">
+    <img id="videoFrame" src="" alt="Video Frame">
+    <div id="recognitionResults"></div>
+
     <script>
-        const videoElement = document.getElementById('video');
-        const websocketUrl = 'ws://192.168.0.124:8765';
-        const myrevoke = (url) => URL.revokeObjectURL(url);
-        const initWebSocket = () => {
-            const websocket = new WebSocket(websocketUrl);
-            websocket.binaryType = 'blob';
-            websocket.onopen = () => console.log('WebSocket connection established.');
-            websocket.onclose = () => console.log('WebSocket connection closed');
-            websocket.onerror = (error) => console.error('WebSocket error:', error);
-            websocket.onmessage = (event) => {
-                if(event.frame instanceof Blob) {
-                    const blob = new Blob([event.frame], { type: 'image/jpeg' });
-                    const url = URL.createObjectURL(blob);
-                    videoElement.src = url;
-                    if(event.recognition) { console.log(event.recognition); }
-                    setTimeout(() => { myrevoke(videoElement.src); }, 1000);
+        const websocket = new WebSocket('ws://localhost:8765'); // Update with your server address
+        let isReceivingFrame = true; // Flag to determine the type of data being received
+
+        websocket.binaryType = 'arraybuffer'; // Set the binary type for the WebSocket
+
+        websocket.onmessage = function(event) {
+            if (typeof event.data === 'string') {
+                // Handle JSON data (recognition results)
+                let message = JSON.parse(event.data);
+                let recognitionResults = message.recognition;
+
+                // Display recognition results
+                let resultsDiv = document.getElementById('recognitionResults');
+                resultsDiv.innerHTML = JSON.stringify(recognitionResults, null, 2);
+                isReceivingFrame = true; // Expecting frame data next
+            } else if (event.data instanceof ArrayBuffer) {
+                // Handle binary data (video frame)
+                if (isReceivingFrame) {
+                    let arrayBuffer = event.data;
+                    let blob = new Blob([arrayBuffer], { type: 'image/jpeg' });
+                    let url = URL.createObjectURL(blob);
+                    document.getElementById('videoFrame').src = url;
+                    isReceivingFrame = false; // Expecting JSON data next
                 }
-            };
+            }
         };
-        initWebSocket();
     </script>
 </body>
 </html>
