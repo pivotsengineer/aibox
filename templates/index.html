@@ -17,7 +17,6 @@
         const myrevoke = (url) => URL.revokeObjectURL(url);
         const initWebSocket = () => {
             const websocket = new WebSocket(websocketUrl);
-            let isReceivingFrame = true;
             websocket.binaryType = 'arraybuffer'; 
             // websocket.binaryType = 'blob';
             websocket.onopen = () => console.log('WebSocket connection established.');
@@ -25,26 +24,20 @@
             websocket.onerror = (error) => console.error('WebSocket error:', error);
             websocket.onmessage = (event) => {
                 if (typeof event.data === 'string') {
-                    // Handle JSON data (recognition results)
                     let message = JSON.parse(event.data);
                     if(message.recognition) {
                         let recognitionResults = message.recognition;
-                        // Display recognition results
                         let resultsDiv = document.getElementById('recognitionResults');
                         resultsDiv.innerHTML = JSON.stringify(recognitionResults, null, 2);
                         console.log(message)
                     }
                     isReceivingFrame = true; 
-                } else
-                if (event.data instanceof ArrayBuffer) {
-                    if (isReceivingFrame) {
-                        let arrayBuffer = event.data;
-                        let blob = new Blob([arrayBuffer], { type: 'image/jpeg' });
-                        let url = URL.createObjectURL(blob);
-                        document.getElementById('videoFrame').src = url;
-                        setTimeout(() => { myrevoke(videoElement.src); }, 1000);
-                    }
-                    isReceivingFrame = false; 
+                } else if (event.data instanceof ArrayBuffer) {
+                    let arrayBuffer = event.data;
+                    let blob = new Blob([arrayBuffer], { type: 'image/jpeg' });
+                    let url = URL.createObjectURL(blob);
+                    document.getElementById('videoFrame').src = url;
+                    setTimeout(() => { myrevoke(videoElement.src); }, 1000);
                 }
             };
         };
