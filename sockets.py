@@ -142,6 +142,7 @@ async def send_frames(queue: asyncio.Queue, websocket):
 
             # Send recognition results as JSON
             await websocket.send(json.dumps(message))
+            time.sleep(0.2)
         
         # Send raw binary frame data
         await websocket.send(frame_data)
