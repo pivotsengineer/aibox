@@ -141,7 +141,7 @@ async def send_frames(queue: asyncio.Queue, websocket):
 
         payload = {
             'image': frame_data,
-            'recognition': recognition_results | None
+            'recognition': recognition_results
         }
 
         # Send frame data to websocket
