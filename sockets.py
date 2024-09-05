@@ -113,6 +113,7 @@ async def capture_frames(queue: asyncio.Queue):
 
 async def send_frames(queue: asyncio.Queue, websocket):
     last_recognition_time = time.time()  # Initialize last recognition time
+    recognition_results = None
 
     while True:
         frame_data = await queue.get()
