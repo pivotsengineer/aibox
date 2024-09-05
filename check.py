@@ -1,7 +1,7 @@
 from ultralytics import YOLO
 
 # Load the trained model
-model = YOLO("/Users/sergeysergienko/Library/Mobile Documents/com~apple~CloudDocs/Projects/newton/best.pt")
+model = YOLO("best.pt")
 
 # Run the model on the image and save the output
 results = model("dice-3.jpg", save=False)
