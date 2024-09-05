@@ -138,6 +138,8 @@ async def send_frames(queue: asyncio.Queue, websocket):
                 'recognition': recognition_results
             }
 
+            print(recognition_results)
+
             # Send recognition results as JSON
             await websocket.send(json.dumps(message))
         
