@@ -116,12 +116,8 @@ async def send_frames(queue: asyncio.Queue, websocket):
 
     while True:
         frame_data = await queue.get()
+        recognition_results = None
         current_time = time.time()
-        recognition_results = {
-            'class': 'unknown',
-            'confidence': 0.0
-        }
-
         if current_time - last_recognition_time >= recognition_interval:
             # Send frame to recognition server
             try:
@@ -137,8 +133,7 @@ async def send_frames(queue: asyncio.Queue, websocket):
             last_recognition_time = current_time  # Update last recognition time
 
         payload = {
-            'image': frame_data,
-            'recognition': recognition_results
+            frame_data, recognition_results
         }
 
         # Send frame data to websocket
