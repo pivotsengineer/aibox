@@ -34,7 +34,7 @@
                         resultsDiv.innerHTML = JSON.stringify(recognitionResults, null, 2);
                         console.log(message)
                     }
-                    isReceivingFrame = true; // Expecting frame data next
+                    isReceivingFrame = true; 
                 } else
                 if (event.data instanceof ArrayBuffer) {
                     if (isReceivingFrame) {
@@ -42,55 +42,13 @@
                         let blob = new Blob([arrayBuffer], { type: 'image/jpeg' });
                         let url = URL.createObjectURL(blob);
                         document.getElementById('videoFrame').src = url;
-                        isReceivingFrame = false; // Expecting JSON data next
                         setTimeout(() => { myrevoke(videoElement.src); }, 1000);
                     }
+                    isReceivingFrame = false; 
                 }
             };
         };
         initWebSocket();
-    </script>
-</body>
-</html>
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Stream</title>
-</head>
-<body>
-    <img id="videoFrame" src="" alt="Video Frame">
-    <div id="recognitionResults"></div>
-
-    <script>
-        const websocket = new WebSocket('ws://localhost:8765'); // Update with your server address
-        let isReceivingFrame = true; // Flag to determine the type of data being received
-
-        websocket.binaryType = 'arraybuffer'; // Set the binary type for the WebSocket
-
-        websocket.onmessage = function(event) {
-            if (typeof event.data === 'string') {
-                // Handle JSON data (recognition results)
-                let message = JSON.parse(event.data);
-                let recognitionResults = message.recognition;
-
-                // Display recognition results
-                let resultsDiv = document.getElementById('recognitionResults');
-                resultsDiv.innerHTML = JSON.stringify(recognitionResults, null, 2);
-                isReceivingFrame = true; // Expecting frame data next
-            } else if (event.data instanceof ArrayBuffer) {
-                // Handle binary data (video frame)
-                if (isReceivingFrame) {
-                    let arrayBuffer = event.data;
-                    let blob = new Blob([arrayBuffer], { type: 'image/jpeg' });
-                    let url = URL.createObjectURL(blob);
-                    document.getElementById('videoFrame').src = url;
-                    isReceivingFrame = false; // Expecting JSON data next
-                }
-            }
-        };
     </script>
 </body>
 </html>
