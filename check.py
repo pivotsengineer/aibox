@@ -4,7 +4,7 @@ from ultralytics import YOLO
 model = YOLO("/Users/sergeysergienko/Library/Mobile Documents/com~apple~CloudDocs/Projects/newton/best.pt")
 
 # Run the model on the image and save the output
-results = model("/Users/sergeysergienko/Library/Mobile Documents/com~apple~CloudDocs/Projects/newton/Dice-1/test/dice 2/20240402141330-jpg-4qc0evbk-ingestion-766bc49b8d-rd6xz_jpg.rf.fae7eddf9b9e9dd0bda06c1ee85561ba.jpg", save=True)
+results = model("dice-3.jpg", save=False)
 
 # Access the probabilities and class names
 for result in results:
