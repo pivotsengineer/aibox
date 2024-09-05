@@ -4,11 +4,8 @@ import subprocess
 import time
 import os
 import requests
-import base64
-import json
 from io import BytesIO
 
-# Constants
 camera_device = "/dev/media1"
 afterCheckTimeout = 2
 afterSendTimeout = 0.25
@@ -19,9 +16,8 @@ start_index_regexp = b'\xFF\xD8'  # JPEG start marker
 end_index_regexp = b'\xFF\xD9'  # JPEG end marker
 ping_interval = 30  # Ping every 30 seconds to keep the connection alive
 recognition_server_url = 'http://192.168.0.152:8001/predict'  # Your recognition server
-recognition_interval = 5  # Time interval to send frames for recognition (in seconds)
+recognition_interval = 1  # Time interval to send frames for recognition (in seconds)
 
-# Function to check and release the camera
 def check_and_release_camera():
     release_camera()
     result = subprocess.run(['lsof', camera_device], capture_output=True, text=True)
@@ -51,7 +47,6 @@ def terminateProcess(process):
         process.terminate()
         process.wait()
 
-# Function to capture frames from the camera
 async def capture_frames(queue: asyncio.Queue):
     command = [
         'libcamera-vid',
@@ -116,7 +111,6 @@ async def capture_frames(queue: asyncio.Queue):
 
             print(f"Retrying... ({retry_attempts}/{max_retries})")
 
-# Function to send frames and recognition results to the WebSocket
 async def send_frames(queue: asyncio.Queue, websocket):
     last_recognition_time = time.time()  # Initialize last recognition time
 
@@ -129,16 +123,9 @@ async def send_frames(queue: asyncio.Queue, websocket):
         }
 
         if current_time - last_recognition_time >= recognition_interval:
+            # Send frame to recognition server
             try:
-                # Convert frame_data to base64
-                base64_image = base64.b64encode(frame_data).decode('utf-8')
-                
-                # Send the frame to the recognition server
-                response = requests.post(
-                    recognition_server_url,
-                    files={'image': BytesIO(frame_data)}
-                )
-                
+                response = requests.post(recognition_server_url, files={'image_url': BytesIO(frame_data)})
                 if response.status_code == 200:
                     recognition_results = response.json()
                     print("Recognition results:", recognition_results)
@@ -150,23 +137,15 @@ async def send_frames(queue: asyncio.Queue, websocket):
             last_recognition_time = current_time  # Update last recognition time
 
         payload = {
-            'image': base64_image,  # Send base64 encoded image
+            'image': frame_data,
             'recognition': recognition_results
         }
 
-        # Serialize payload to JSON
-        payload_json = json.dumps(payload)
-        
-        try:
-            # Send the combined payload
-            await websocket.send(payload_json)
-        except websockets.exceptions.ConnectionClosed as e:
-            print(f"WebSocket connection closed: {e}")
-            break
+        # Send frame data to websocket
+        await websocket.send(payload)
         
         queue.task_done()
 
-# Function to ping the WebSocket periodically
 async def ping_websocket(websocket):
     while True:
         try:
@@ -177,7 +156,6 @@ async def ping_websocket(websocket):
             print(f"Error sending WebSocket ping: {e}")
             break
 
-# Main function to start WebSocket server
 async def video_stream(websocket, path):
     queue = asyncio.Queue(maxsize=bufferSize)
     producer = asyncio.create_task(capture_frames(queue))
