@@ -2,8 +2,8 @@ import os
 from ultralytics import YOLO
 
 current_dir = os.getcwd()
-modelPath = '/home/sergienko/newton/best.pt'
-testImagePath = '/home/sergienko/newton/dice-3.jpg'
+modelPath = "/home/sergienko/newton/best.pt"
+testImagePath = "/home/sergienko/newton/dice-3.jpg"
 
 # Check if the file exists
 if not os.path.isfile(modelPath):
