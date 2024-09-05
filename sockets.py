@@ -41,7 +41,6 @@ def check_and_release_camera():
             os.kill(pid, 9)
         except Exception as e:
             print(f"Error killing process {pid}: {e}")
-    time.sleep(afterCheckTimeuot)  # Give the system a moment to release the camera
 
 def terminateProcess(process):
     if process:
@@ -66,6 +65,9 @@ async def capture_frames(queue: asyncio.Queue):
     while True:
         try:
             check_and_release_camera()
+
+            time.sleep(afterCheckTimeuot)  # Give the system a moment to release the camera
+
             process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
             while True:
