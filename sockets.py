@@ -31,7 +31,6 @@ def check_and_release_camera():
                 time.sleep(0.5)  # Give system time to release the resource
             except Exception as e:
                 print(f"Error killing process {pid}: {e}")
-        time.sleep(afterCheckTimeout)
 
 def release_camera():
     try:
@@ -65,6 +64,8 @@ async def capture_frames(queue: asyncio.Queue):
         try:
             check_and_release_camera()
 
+            time.sleep(afterCheckTimeout)
+
             process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
             while True:
@@ -94,7 +95,7 @@ async def capture_frames(queue: asyncio.Queue):
                     await queue.put(frame_data)
 
                 # Avoid excessive buffer growth
-                if len(buffer) > chunk_size * 4:
+                if len(buffer) > chunk_size * 8:
                     buffer = buffer[-chunk_size:]
 
         except Exception as e:
@@ -108,8 +109,7 @@ async def send_frames(queue: asyncio.Queue, websocket):
     while True:
         frame_data = await queue.get()
         await websocket.send(frame_data)
-        print(".")
-        await asyncio.sleep(afterSendTimeout)
+        print('Frame data sent')
         queue.task_done()
 
 async def ping_websocket(websocket):
