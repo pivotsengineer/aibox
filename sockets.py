@@ -136,7 +136,7 @@ async def send_frames(queue: asyncio.Queue, websocket):
         
         # Create a message with both frame data and recognition results
         message = {
-            'frame': frame_data.decode('latin1'),  # Convert bytes to a string (or use base64 encoding if preferred)
+            'frame': frame_data,  # Convert bytes to a string (or use base64 encoding if preferred)
             'recognition': recognition_results
         }
 
