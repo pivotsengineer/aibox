@@ -5,7 +5,7 @@ import time
 import os
 
 camera_device = "/dev/media1"
-afterCheckTimeout = 0.5
+afterCheckTimeout = 2
 afterSendTimeout = 0.25
 chunk_size = 1024 * 4
 onFrameErrorTimeout = 0.02
@@ -38,6 +38,7 @@ def release_camera():
     except subprocess.CalledProcessError as e:
         if e.returncode != 1:
             raise
+        
     time.sleep(afterCheckTimeout)
 
 def terminateProcess(process):
@@ -59,12 +60,12 @@ async def capture_frames(queue: asyncio.Queue):
     ]
     buffer = bytearray()
     process = None
+    retry_attempts = 0
+    max_retries = 5
 
     while True:
         try:
             check_and_release_camera()
-
-            time.sleep(afterCheckTimeout)
 
             process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
@@ -85,16 +86,13 @@ async def capture_frames(queue: asyncio.Queue):
                 start_index = buffer.find(start_index_regexp)
                 end_index = buffer.find(end_index_regexp)
 
-                # Process frame if valid start and end indices are found
                 if start_index != -1 and end_index != -1 and end_index > start_index:
                     end_index += len(end_index_regexp)
                     frame_data = buffer[start_index:end_index]
-                    buffer = buffer[end_index:]  # Clear buffer of processed data
+                    buffer = buffer[end_index:]
 
-                    # Send the frame to the queue
                     await queue.put(frame_data)
 
-                # Avoid excessive buffer growth
                 if len(buffer) > chunk_size * 8:
                     buffer = buffer[-chunk_size:]
 
@@ -104,12 +102,19 @@ async def capture_frames(queue: asyncio.Queue):
         finally:
             terminateProcess(process)
             await asyncio.sleep(afterCheckTimeout)
+            retry_attempts += 1
+
+            if retry_attempts >= max_retries:
+                print(f"Reached max retry attempts ({max_retries}). Exiting capture loop.")
+                break
+
+            print(f"Retrying... ({retry_attempts}/{max_retries})")
 
 async def send_frames(queue: asyncio.Queue, websocket):
     while True:
         frame_data = await queue.get()
         await websocket.send(frame_data)
-        print('Frame data sent')
+        print('.')
         queue.task_done()
 
 async def ping_websocket(websocket):
