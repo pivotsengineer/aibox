@@ -1,10 +1,14 @@
+import os
 from ultralytics import YOLO
 
-# Load the trained model
-model = YOLO("best.pt")
+current_dir = os.getcwd()
+filename = 'best.pt'
+file_path = os.path.join(current_dir, filename)
+
+model = YOLO(file_path)
 
 # Run the model on the image and save the output
-results = model("dice-3.jpg", save=False)
+results = model("/home/sergienko/newton/dice-3.jpg", save=False)
 
 # Access the probabilities and class names
 for result in results:
