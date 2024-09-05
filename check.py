@@ -2,22 +2,22 @@ import os
 from ultralytics import YOLO
 
 current_dir = os.getcwd()
-filename = 'best.pt'
-file_path = os.path.join(current_dir, filename)
+modelPath = '/home/sergienko/newton/best.pt'
+testImagePath = '/home/sergienko/newton/dice-3.jpg'
 
 # Check if the file exists
-if not os.path.isfile(file_path):
-    print(f"File not found: {file_path}")
+if not os.path.isfile(modelPath):
+    print(f"File not found: {modelPath}")
 else:
-    print(f"File found: {file_path}")
+    print(f"File found: {modelPath}")
 
     try:
         # Load the model
-        model = YOLO(file_path)
+        model = YOLO(modelPath)
         print("Model loaded successfully.")
 
         # Run the model on the image and save the output
-        results = model("/home/sergienko/newton/dice-3.jpg", save=False)
+        results = model(testImagePath, save=False)
 
         # Access the probabilities and class names
         for result in results:
