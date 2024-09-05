@@ -1,4 +1,5 @@
 import asyncio
+import json
 import websockets
 import subprocess
 import time
@@ -138,8 +139,10 @@ async def send_frames(queue: asyncio.Queue, websocket):
             'recognition': recognition_results
         }
 
+        payload_json = json.dumps(payload)
+
         # Send frame data to websocket
-        await websocket.send(payload)
+        await websocket.send(payload_json)
         print(".")
         queue.task_done()
 
