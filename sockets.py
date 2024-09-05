@@ -16,9 +16,11 @@ ping_interval = 30  # Ping every 30 seconds to keep the connection alive
 
 def check_and_release_camera():
     release_camera()
+    # Check which process is using the camera device
     result = subprocess.run(['lsof', camera_device], capture_output=True, text=True)
     lines = result.stdout.strip().split('\n')
     if len(lines) > 1:
+        # Skip the header and get process info
         for line in lines[1:]:
             parts = line.split()
             pid = int(parts[1])
@@ -26,7 +28,7 @@ def check_and_release_camera():
             print(f"Killing process {command} with PID {pid} using {camera_device}")
             try:
                 os.kill(pid, 9)
-                time.sleep(0.5)
+                time.sleep(0.5)  # Give system time to release the resource
             except Exception as e:
                 print(f"Error killing process {pid}: {e}")
         time.sleep(afterCheckTimeout)
@@ -51,10 +53,10 @@ async def capture_frames(queue: asyncio.Queue):
         '--width', '640',
         '--height', '480',
         '--framerate', '60',
-        '--roi', '0.0,0.0,1.0,1.0',
+        '--roi', '0.0,0.0,1.0,1.0',  # Full sensor readout (no crop)
         '-t', '0',
         '--inline',
-        '-o', '-'
+        '-o', '-'  # Output to stdout
     ]
     buffer = bytearray()
     process = None
@@ -82,13 +84,16 @@ async def capture_frames(queue: asyncio.Queue):
                 start_index = buffer.find(start_index_regexp)
                 end_index = buffer.find(end_index_regexp)
 
+                # Process frame if valid start and end indices are found
                 if start_index != -1 and end_index != -1 and end_index > start_index:
                     end_index += len(end_index_regexp)
                     frame_data = buffer[start_index:end_index]
-                    buffer = buffer[end_index:]
+                    buffer = buffer[end_index:]  # Clear buffer of processed data
 
+                    # Send the frame to the queue
                     await queue.put(frame_data)
 
+                # Avoid excessive buffer growth
                 if len(buffer) > chunk_size * 4:
                     buffer = buffer[-chunk_size:]
 
@@ -103,6 +108,8 @@ async def send_frames(queue: asyncio.Queue, websocket):
     while True:
         frame_data = await queue.get()
         await websocket.send(frame_data)
+        print(".")
+        await asyncio.sleep(afterSendTimeout)
         queue.task_done()
 
 async def ping_websocket(websocket):
@@ -113,18 +120,18 @@ async def ping_websocket(websocket):
             await asyncio.sleep(ping_interval)  # Wait for the interval before sending the next ping
         except Exception as e:
             print(f"Error sending WebSocket ping: {e}")
-            break  # Exit the loop if the ping fails
+            break
 
 async def video_stream(websocket, path):
     queue = asyncio.Queue(maxsize=bufferSize)
     producer = asyncio.create_task(capture_frames(queue))
     consumer = asyncio.create_task(send_frames(queue, websocket))
-    pinger = asyncio.create_task(ping_websocket(websocket))
+    pinger = asyncio.create_task(ping_websocket(websocket))  # Ping WebSocket periodically
 
     await asyncio.gather(producer, consumer, pinger)
 
 async def main():
-    server = await websockets.serve(video_stream, '0.0.0.0', 8765, ping_interval=None)  # Disable automatic ping
+    server = await websockets.serve(video_stream, '0.0.0.0', 8765)
     await server.wait_closed()
 
 asyncio.run(main())
