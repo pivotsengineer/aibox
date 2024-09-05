@@ -3,45 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live Stream</title>
+    <title>Video Stream</title>
 </head>
 <body>
-    <h1>Live Camera Stream</h1>
-    <div id="video">
-        <img id="video" src="" alt="Video stream not available" loading="lazy">
-    </div>
+    <img id="videoFrame" src="" alt="Video Frame">
     <div id="recognitionResults"></div>
+
     <script>
-        const videoElement = document.getElementById('video');
-        const websocketUrl = 'ws://192.168.0.124:8765';
-        const myrevoke = (url) => URL.revokeObjectURL(url);
-        const initWebSocket = () => {
-            const websocket = new WebSocket(websocketUrl);
-            websocket.binaryType = 'arraybuffer'; 
-            // websocket.binaryType = 'blob';
-            websocket.onopen = () => console.log('WebSocket connection established.');
-            websocket.onclose = () => console.log('WebSocket connection closed');
-            websocket.onerror = (error) => console.error('WebSocket error:', error);
-            websocket.onmessage = (event) => {
+        document.addEventListener('DOMContentLoaded', () => {
+            const websocket = new WebSocket('ws://92.168.0.124:8765');
+            let isReceivingFrame = true;
+
+            websocket.binaryType = 'arraybuffer';
+
+            websocket.onmessage = function(event) {
                 if (typeof event.data === 'string') {
                     let message = JSON.parse(event.data);
-                    if(message.recognition) {
-                        let recognitionResults = message.recognition;
-                        let resultsDiv = document.getElementById('recognitionResults');
-                        resultsDiv.innerHTML = JSON.stringify(recognitionResults, null, 2);
-                        console.log(message)
-                    }
-                    isReceivingFrame = true; 
+                    let recognitionResults = message.recognition;
+                    let resultsDiv = document.getElementById('recognitionResults');
+                    resultsDiv.innerHTML = JSON.stringify(recognitionResults, null, 2);
+                    isReceivingFrame = true;
                 } else if (event.data instanceof ArrayBuffer) {
-                    let arrayBuffer = event.data;
-                    let blob = new Blob([arrayBuffer], { type: 'image/jpeg' });
-                    let url = URL.createObjectURL(blob);
-                    document.getElementById('videoFrame').src = url;
-                    setTimeout(() => { myrevoke(videoElement.src); }, 1000);
+                    if (isReceivingFrame) {
+                        let arrayBuffer = event.data;
+                        let blob = new Blob([arrayBuffer], { type: 'image/jpeg' });
+                        let url = URL.createObjectURL(blob);
+                        document.getElementById('videoFrame').src = url;
+                        isReceivingFrame = false;
+                    }
                 }
             };
-        };
-        initWebSocket();
+        });
     </script>
 </body>
 </html>
