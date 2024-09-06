@@ -127,23 +127,12 @@ async def send_frames(queue: asyncio.Queue, websocket):
             try:
                 results = model(frame_data)
                 recognition_results = results.pandas().xyxy[0].to_dict(orient="records")
+                await websocket.send(json.dumps({'recognition': recognition_results}))
                 print("Recognition results:", recognition_results)
             except Exception as e:
                 print(f"Error during recognition: {e}")
-
             last_recognition_time = current_time
 
-            message = {
-                'recognition': recognition_results
-            }
-
-            print(recognition_results)
-
-            # Send recognition results as JSON
-            await websocket.send(json.dumps(message))
-            time.sleep(0.2)
-        
-        # Send raw binary frame data
         await websocket.send(frame_data)
         queue.task_done()
 
