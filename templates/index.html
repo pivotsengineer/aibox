@@ -24,7 +24,9 @@
                     let message = JSON.parse(event.data);
                     let recognitionResults = message.recognition;
                     let resultsDiv = document.getElementById('recognitionResults');
-                    if(len(recognitionResults.predictions) > 0 && recognitionResults.predictions[0]?.confidence > 0.6) {
+                    if(Array.isArray(recognitionResults?.predictions) &&       // Check if predictions is an array
+                        recognitionResults.predictions.length > 0 &&            // Check if the array is not empty
+                        recognitionResults.predictions[0]?.confidence > 0.6  ) {
                         resultsDiv.innerHTML = recognitionResults.predictions[0]?.class;
                     } else {
                         resultsDiv.innerHTML = '';
