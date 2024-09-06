@@ -24,7 +24,7 @@
                     let message = JSON.parse(event.data);
                     let recognitionResults = message.recognition;
                     let resultsDiv = document.getElementById('recognitionResults');
-                    if(recognitionResults.predictions[0]?.confidence > 0.6) {
+                    if(recognitionResults?.predictions?[0]?.confidence > 0.6) {
                         resultsDiv.innerHTML = recognitionResults.predictions[0]?.class;
                     } else {
                         resultsDiv.innerHTML = '';
