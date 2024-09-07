@@ -16,15 +16,14 @@
         document.addEventListener('DOMContentLoaded', () => {
             const websocket = new WebSocket('ws://192.168.0.124:8765');
             let isReceivingFrame = true;
+            const resultsDiv = document.getElementById("recognitionResults")
 
             websocket.binaryType = 'arraybuffer';
 
             websocket.onmessage = function(event) {
                 if (typeof event.data === 'string') {
-                    let re = JSON.parse(event.data);
-                    const resultsDiv = document.getElementById("recognitionResults")
+                    let recognitionResults = JSON.parse(event.data);
                     resultsDiv.innerHTML = '';
-
                     if (Array.isArray(recognitionResults?.predictions) && recognitionResults.predictions.length > 0) {
                         recognitionResults.predictions.forEach(prediction => {
                             let resultItem = document.createElement('div');
@@ -33,8 +32,7 @@
                             resultsDiv.appendChild(resultItem);
                         });
                     } else {
-                        // Optionally clear the resultsDiv if no valid predictions are available
-                        resultsDiv.innerHTML = 'No results found.';
+                        resultsDiv.innerHTML = '';
                     }
                     
                     isReceivingFrame = true;
