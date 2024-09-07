@@ -44,7 +44,7 @@
                             recognitionResults.predictions.forEach(prediction => {
                                 let resultItem = document.createElement('div');
                                 resultItem.className = 'resultItem'; // Use CSS class for styling
-                                resultItem.innerHTML = `<strong>Class:</strong> ${prediction.class} <br><strong>Confidence:</strong> ${prediction.confidence.toFixed(2)}`;
+                                resultItem.innerHTML = `${prediction.class}`;
                                 resultsDiv.appendChild(resultItem);
                             });
                         } else {
