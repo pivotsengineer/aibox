@@ -23,6 +23,9 @@
                 if (typeof event.data === 'string') {
                     let message = JSON.parse(event.data);
                     let recognitionResults = message.recognition;
+
+                    console.log('recognitionResults', recognitionResults);
+
                     let resultsDiv = document.getElementById('recognitionResults');
                     if(Array.isArray(recognitionResults?.predictions) &&       // Check if predictions is an array
                         recognitionResults.predictions.length > 0 &&            // Check if the array is not empty
