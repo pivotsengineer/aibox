@@ -6,7 +6,6 @@ import time
 import os
 import requests
 from io import BytesIO
-import torch
 
 camera_device = "/dev/media1"
 afterCheckTimeout = 2
@@ -19,8 +18,6 @@ end_index_regexp = b'\xFF\xD9'  # JPEG end marker
 ping_interval = 30  # Ping every 30 seconds to keep the connection alive
 recognition_server_url = 'http://192.168.0.37:8001/predict'  # Your recognition server
 recognition_interval = 1  # Time interval to send frames for recognition (in seconds)
-model_path = '/home/ssergienko/newton_model/runs/classify/train/weights/best.pt'
-model = torch.hub.load('ultralytics/yolov5', 'custom', path=model_path)
 
 def check_and_release_camera():
     release_camera()
@@ -124,15 +121,30 @@ async def send_frames(queue: asyncio.Queue, websocket):
         recognition_results = {}
 
         if current_time - last_recognition_time >= recognition_interval:
+            # Send frame to recognition server
             try:
-                results = model(frame_data)
-                recognition_results = results.pandas().xyxy[0].to_dict(orient="records")
-                await websocket.send(json.dumps({'recognition': recognition_results}))
-                print("Recognition results:", recognition_results)
-                time.sleep(0.2)
+                response = requests.post(recognition_server_url, files={'image_url': BytesIO(frame_data)})
+                if response.status_code == 200:
+                    recognition_results = response.json()
+                    print("Recognition results:", recognition_results)
+                else:
+                    print(f"Error from recognition server: {response.status_code}")
             except Exception as e:
-                print(f"Error during recognition: {e}")
-            last_recognition_time = current_time
+                print(f"Error sending frame to recognition server: {e}")
+
+            last_recognition_time = current_time  # Update last recognition time
+
+            message = {
+                'recognition': recognition_results
+            }
+
+            print(recognition_results)
+
+            # Send recognition results as JSON
+            await websocket.send(json.dumps(message))
+            time.sleep(0.2)
+        
+        # Send raw binary frame data
         await websocket.send(frame_data)
         queue.task_done()
 
