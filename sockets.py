@@ -141,30 +141,7 @@ async def send_frames(queue: asyncio.Queue, websocket):
                 # Decode JPEG binary data to NumPy array
                 np_arr = np.frombuffer(frame_data, np.uint8)
                 img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
-
-                # Run YOLO recognition on the decoded image
-                response = model(img, save=False)
-
-                # Process results to extract class and confidence information
-                predictions = []
-                for result in response:
-                    if result.probs is not None:  # Ensure there are predictions
-                        # Get the top 1 prediction
-                        top1_class = result.names[result.probs.top1]
-                        top1_confidence = float(result.probs.top1conf)
-                        
-                        # Get the top 5 predictions
-                        top5_classes = [result.names[i] for i in result.probs.top5]
-                        top5_confidences = [float(conf) for conf in result.probs.top5conf]
-
-                        # Combine into a single prediction list
-                        for class_name, confidence in zip(top5_classes, top5_confidences):
-                            predictions.append({
-                                'class': class_name,
-                                'confidence': confidence
-                            })
-
-                message = {'recognition': predictions}
+                json_output = get_predictions_as_json(img)
 
             except Exception as e:
                 print(f"Error during recognition: {e}")
@@ -173,11 +150,42 @@ async def send_frames(queue: asyncio.Queue, websocket):
             last_recognition_time = current_time
 
             # Send recognition results via WebSocket
-            await websocket.send(json.dumps(message))
+            await websocket.send(json.dumps(json_output))
 
         # Send raw frame data as is
         await websocket.send(frame_data)
         queue.task_done()
+
+def get_predictions_as_json(image):
+    # Run YOLO recognition on the image
+    results = model(image, save=False)
+
+    # Prepare the list to hold predictions
+    predictions = []
+
+    for result in results:
+        # Extract probabilities
+        probs = result.probs
+
+        if probs is not None:
+            # Convert probs to a numpy array for easier manipulation
+            probs_array = probs.numpy() if isinstance(probs, torch.Tensor) else probs
+
+            # Extract top-1 prediction
+            top1_index = probs.top1
+            top1_conf = probs.top1conf.item()
+
+            # Format prediction details
+            prediction = {
+                'class': result.names[top1_index],
+                'confidence': top1_conf
+            }
+            predictions.append(prediction)
+
+    # Convert the list of predictions to JSON
+    predictions_json = json.dumps({'predictions': predictions}, indent=2)
+    
+    return predictions_json
 
 async def ping_websocket(websocket):
     while True:
