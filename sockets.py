@@ -20,8 +20,12 @@ ping_interval = 30  # Ping every 30 seconds to keep the connection alive
 recognition_server_url = 'http://192.168.0.37:8001/predict'  # Your recognition server
 recognition_interval = 1  # Time interval to send frames for recognition (in seconds)
 model_path = '/home/ssergienko/newton_model/runs/classify/train/weights/best.pt'
-model = torch.hub.load('ultralytics/yolov5', 'custom', path=model_path)
 yolov5_repo_path = '/home/ssergienko/yolov5' 
+
+import sys
+sys.path.insert(0, yolov5_repo_path)
+
+model = torch.load(model_path)
 
 def check_and_release_camera():
     release_camera()
