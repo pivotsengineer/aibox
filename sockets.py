@@ -146,16 +146,15 @@ async def send_frames(queue: asyncio.Queue, websocket):
                 # Run YOLO recognition on the decoded image
                 response = model(img, save=False)
 
-                # Access results from the `response`
+                # Check if the result is classification
                 if response:
-                    # Extract the predictions (boxes, names, etc.)
-                    for res in response:
-                        for box in res.boxes:  # Access bounding boxes
+                    result = response[0]  # Extract the first result
+                    if result.probs:  # Check if classification results are present
+                        for class_id, prob in enumerate(result.probs):
                             recognition_results.append({
-                                'class': int(box.cls),  # Class ID (int)
-                                'name': response.names[int(box.cls)],  # Class name
-                                'confidence': float(box.conf),  # Confidence score
-                                'bbox': box.xyxy.tolist()  # Bounding box coordinates
+                                'class': class_id,
+                                'name': result.names[class_id],  # Access class name
+                                'confidence': float(prob)  # Confidence score
                             })
 
                     print("Recognition results:", recognition_results)
@@ -164,17 +163,18 @@ async def send_frames(queue: asyncio.Queue, websocket):
             except Exception as e:
                 print(f"Error during recognition: {e}")
 
-            last_recognition_time = current_time 
+            last_recognition_time = current_time
 
             # Send recognition results via WebSocket
             message = {
                 'recognition': recognition_results
             }
             await websocket.send(json.dumps(message))
-        
+
         # Send raw frame data as is
         await websocket.send(frame_data)
         queue.task_done()
+
 
 async def ping_websocket(websocket):
     while True:
