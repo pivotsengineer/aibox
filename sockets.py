@@ -169,10 +169,7 @@ async def send_frames(queue: asyncio.Queue, websocket):
                         }
                         predictions.append(prediction)
 
-                # Convert predictions to JSON
                 json_output = json.dumps({'predictions': predictions}, indent=2)
-
-                print(json_output)
 
                 await websocket.send(json_output)
 
