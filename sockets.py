@@ -21,6 +21,7 @@ recognition_server_url = 'http://192.168.0.37:8001/predict'  # Your recognition 
 recognition_interval = 1  # Time interval to send frames for recognition (in seconds)
 model_path = '/home/ssergienko/newton_model/runs/classify/train/weights/best.pt'
 model = torch.hub.load('ultralytics/yolov5', 'custom', path=model_path)
+yolov5_repo_path = '/home/ssergienko/yolov5' 
 
 def check_and_release_camera():
     release_camera()
@@ -131,9 +132,10 @@ async def send_frames(queue: asyncio.Queue, websocket):
                 print("Recognition results:", recognition_results)
             except Exception as e:
                 print(f"Error during recognition: {e}")
-            last_recognition_time = current_time
-
+        
+        last_recognition_time = current_time
         queue.task_done()
+
 
 
 async def ping_websocket(websocket):
