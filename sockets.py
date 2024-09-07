@@ -127,7 +127,6 @@ async def send_frames(queue: asyncio.Queue, websocket):
         frame_data = await queue.get()
         current_time = time.time()
         recognition_results = {}
-        await websocket.send(frame_data)
         if current_time - last_recognition_time >= recognition_interval:
             try:
                 results = model(frame_data)
@@ -138,9 +137,8 @@ async def send_frames(queue: asyncio.Queue, websocket):
                 print(f"Error during recognition: {e}")
         
         last_recognition_time = current_time
+        await websocket.send(frame_data)
         queue.task_done()
-
-
 
 async def ping_websocket(websocket):
     while True:
