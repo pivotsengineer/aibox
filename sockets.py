@@ -171,16 +171,18 @@ def get_predictions_as_json(image):
             # Convert probs to a numpy array for easier manipulation
             probs_array = probs.numpy() if isinstance(probs, torch.Tensor) else probs
 
+            print('--probs start')
             print(probs_array)
+            print('--probs end')
 
             # Extract top-1 prediction
-            top1_index = probs.top1
-            top1_conf = probs.top1conf.item()
+            top5_index = probs.top5
+            top5_conf = probs.top5conf.item()
 
             # Format prediction details
             prediction = {
-                'class': result.names[top1_index],
-                'confidence': top1_conf
+                'class': result.names[top5_index],
+                'confidence': top5_conf
             }
             predictions.append(prediction)
 
