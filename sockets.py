@@ -150,11 +150,11 @@ async def send_frames(queue: asyncio.Queue, websocket):
                 if response:
                     result = response[0]  # Extract the first result
                     if result.probs:  # Check if classification results are present
-                        for class_id, prob in enumerate(result.probs):
+                        for class_id, prob in result.probs.topk(5):  # Get the top 5 predictions
                             recognition_results.append({
                                 'class': class_id,
                                 'name': result.names[class_id],  # Access class name
-                                'confidence': float(prob)  # Confidence score
+                                'confidence': float(prob)  # Convert probability to float
                             })
 
                     print("Recognition results:", recognition_results)
