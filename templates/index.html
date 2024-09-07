@@ -21,21 +21,20 @@
 
             websocket.onmessage = function(event) {
                 if (typeof event.data === 'string') {
-                    let message = JSON.parse(event.data);
+                    let re = JSON.parse(event.data);
 
-                    console.log('message', message);
+                    resultsDiv.innerHTML = '';
 
-                    let recognitionResults = message.recognition;
-
-                    console.log('recognitionResults', recognitionResults);
-
-                    let resultsDiv = document.getElementById('recognitionResults');
-                    if(Array.isArray(recognitionResults?.predictions) &&       // Check if predictions is an array
-                        recognitionResults.predictions.length > 0 &&            // Check if the array is not empty
-                        recognitionResults.predictions[0]?.confidence > 0.6  ) {
-                        resultsDiv.innerHTML = recognitionResults.predictions[0]?.class;
+                    if (Array.isArray(recognitionResults?.predictions) && recognitionResults.predictions.length > 0) {
+                        recognitionResults.predictions.forEach(prediction => {
+                            let resultItem = document.createElement('div');
+                            resultItem.style("position: absolute; background-color: black; left: 20px; top: 20px; font-size: 3rem; color: white; font-weight: bold;")
+                            resultItem.innerHTML = `<strong>Class:</strong> ${prediction.class} <br><strong>Confidence:</strong> ${prediction.confidence.toFixed(2)}`;
+                            resultsDiv.appendChild(resultItem);
+                        });
                     } else {
-                        resultsDiv.innerHTML = '';
+                        // Optionally clear the resultsDiv if no valid predictions are available
+                        resultsDiv.innerHTML = 'No results found.';
                     }
                     
                     isReceivingFrame = true;
