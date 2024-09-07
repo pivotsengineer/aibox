@@ -135,8 +135,7 @@ async def send_frames(queue: asyncio.Queue, websocket):
                 print("Recognition results:", recognition_results)
             except Exception as e:
                 print(f"Error during recognition: {e}")
-        
-        last_recognition_time = current_time
+            last_recognition_time = current_time
         await websocket.send(frame_data)
         queue.task_done()
 
