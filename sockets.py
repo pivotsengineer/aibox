@@ -19,13 +19,8 @@ end_index_regexp = b'\xFF\xD9'  # JPEG end marker
 ping_interval = 30  # Ping every 30 seconds to keep the connection alive
 recognition_server_url = 'http://192.168.0.37:8001/predict'  # Your recognition server
 recognition_interval = 1  # Time interval to send frames for recognition (in seconds)
-model_path = '/home/sergienko/newton_model/runs/classify/train/weights/best.pt'
-yolov5_repo_path = '/home/sergienko/yolov5' 
-
-import sys
-sys.path.insert(0, yolov5_repo_path)
-
-model = torch.load(model_path)
+model_path = '/home/ssergienko/newton_model/runs/classify/train/weights/best.pt'
+model = torch.hub.load('ultralytics/yolov5', 'custom', path=model_path)
 
 def check_and_release_camera():
     release_camera()
@@ -127,12 +122,14 @@ async def send_frames(queue: asyncio.Queue, websocket):
         frame_data = await queue.get()
         current_time = time.time()
         recognition_results = {}
+
         if current_time - last_recognition_time >= recognition_interval:
             try:
                 results = model(frame_data)
                 recognition_results = results.pandas().xyxy[0].to_dict(orient="records")
                 await websocket.send(json.dumps({'recognition': recognition_results}))
                 print("Recognition results:", recognition_results)
+                time.sleep(0.2)
             except Exception as e:
                 print(f"Error during recognition: {e}")
             last_recognition_time = current_time
