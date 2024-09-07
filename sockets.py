@@ -138,43 +138,38 @@ async def send_frames(queue: asyncio.Queue, websocket):
 
         if current_time - last_recognition_time >= recognition_interval:
             try:
-                # Minimal conversion: Decode JPEG binary data to NumPy array
+                # Decode JPEG binary data to NumPy array
                 np_arr = np.frombuffer(frame_data, np.uint8)
-                img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)  # Convert JPEG to image (NumPy array)
+                img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
 
                 # Run YOLO recognition on the decoded image
                 response = model(img, save=False)
 
-                # Process results and return the highest probability class
+                # Process results to extract class and confidence information
                 predictions = []
                 for result in response:
-                    probs = result.probs
-                    if probs is not None:
-                        max_prob_index = probs.top1
-                        class_name = result.names[max_prob_index]
-                        confidence = probs.top1conf
-                        predictions.append({
-                            'class': class_name,
-                            'confidence': confidence.item()
-                        })
-                    else:
-                        response.append({'error': 'No class prediction found'})
+                    if result.probs is not None:  # Ensure there are predictions
+                        top_classes = result.probs.topk(5)  # Get top 5 predictions
+                        for class_id, confidence in zip(top_classes.indices, top_classes.values):
+                            predictions.append({
+                                'class': result.names[class_id],  # Class name
+                                'confidence': float(confidence)  # Confidence score
+                            })
+
+                message = {'recognition': predictions}
 
             except Exception as e:
                 print(f"Error during recognition: {e}")
+                message = {'error': str(e)}
 
             last_recognition_time = current_time
 
             # Send recognition results via WebSocket
-            message = {
-                'recognition': response
-            }
             await websocket.send(json.dumps(message))
 
         # Send raw frame data as is
         await websocket.send(frame_data)
         queue.task_done()
-
 
 async def ping_websocket(websocket):
     while True:
