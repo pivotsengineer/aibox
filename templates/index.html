@@ -4,6 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Video Stream</title>
+    <style>
+        #recognitionResults {
+            position: absolute;
+            background-color: black;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .resultItem {
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
     <div style="position: relative;">
@@ -11,30 +25,32 @@
         <div id="recognitionResults"></div>
     </div>
     
-
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const websocket = new WebSocket('ws://192.168.0.124:8765');
             let isReceivingFrame = true;
-            const resultsDiv = document.getElementById("recognitionResults")
+            const resultsDiv = document.getElementById("recognitionResults");
 
             websocket.binaryType = 'arraybuffer';
 
             websocket.onmessage = function(event) {
                 if (typeof event.data === 'string') {
-                    let recognitionResults = JSON.parse(event.data);
-                    resultsDiv.innerHTML = '';
-                    if (Array.isArray(recognitionResults?.predictions) && recognitionResults.predictions.length > 0) {
-                        recognitionResults.predictions.forEach(prediction => {
-                            let resultItem = document.createElement('div');
-                            resultItem.style("position: absolute; background-color: black; left: 20px; top: 20px; font-size: 3rem; color: white; font-weight: bold;")
-                            resultItem.innerHTML = `<strong>Class:</strong> ${prediction.class} <br><strong>Confidence:</strong> ${prediction.confidence.toFixed(2)}`;
-                            resultsDiv.appendChild(resultItem);
-                        });
-                    } else {
+                    try {
+                        let recognitionResults = JSON.parse(event.data);
                         resultsDiv.innerHTML = '';
+                        if (Array.isArray(recognitionResults?.predictions) && recognitionResults.predictions.length > 0) {
+                            recognitionResults.predictions.forEach(prediction => {
+                                let resultItem = document.createElement('div');
+                                resultItem.className = 'resultItem'; // Use CSS class for styling
+                                resultItem.innerHTML = `<strong>Class:</strong> ${prediction.class} <br><strong>Confidence:</strong> ${prediction.confidence.toFixed(2)}`;
+                                resultsDiv.appendChild(resultItem);
+                            });
+                        } else {
+                            resultsDiv.innerHTML = 'No results found.';
+                        }
+                    } catch (e) {
+                        console.error('Error parsing JSON:', e);
                     }
-                    
                     isReceivingFrame = true;
                 } else if (event.data instanceof ArrayBuffer) {
                     if (isReceivingFrame) {
