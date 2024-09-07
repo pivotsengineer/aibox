@@ -142,6 +142,7 @@ async def send_frames(queue: asyncio.Queue, websocket):
                 np_arr = np.frombuffer(frame_data, np.uint8)
                 img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
                 response = model(img, save=False)
+                print(response)
                 if response:
                     recognition_results = response.json()
                     print("Recognition results:", recognition_results)
