@@ -22,6 +22,9 @@
             websocket.onmessage = function(event) {
                 if (typeof event.data === 'string') {
                     let message = JSON.parse(event.data);
+
+                    console.log('message', message);
+
                     let recognitionResults = message.recognition;
 
                     console.log('recognitionResults', recognitionResults);
