@@ -5,8 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Video Stream</title>
     <style>
+        #wrapper {
+            position: relative;
+        }
         #recognitionResults {
             position: absolute;
+        }
+        .resultItem {
             background-color: black;
             color: white;
             font-size: 1.5rem;
@@ -14,13 +19,10 @@
             padding: 10px;
             border-radius: 5px;
         }
-        .resultItem {
-            margin-bottom: 10px;
-        }
     </style>
 </head>
 <body>
-    <div style="position: relative;">
+    <div style="position: relative;" id="wrapper">
         <img id="videoFrame" src="" alt="Video Frame">
         <div id="recognitionResults"></div>
     </div>
