@@ -135,32 +135,44 @@ async def send_frames(queue: asyncio.Queue, websocket):
     while True:
         frame_data = await queue.get()
         current_time = time.time()
-        recognition_results = {}
+        recognition_results = []
 
         if current_time - last_recognition_time >= recognition_interval:
             try:
+                # Minimal conversion: Decode JPEG binary data to NumPy array
                 np_arr = np.frombuffer(frame_data, np.uint8)
-                img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+                img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)  # Convert JPEG to image (NumPy array)
+
+                # Run YOLO recognition on the decoded image
                 response = model(img, save=False)
-                print(response)
+
+                # Access results from the `response`
                 if response:
-                    recognition_results = response.json()
+                    # Extract the predictions (boxes, names, etc.)
+                    for res in response:
+                        for box in res.boxes:  # Access bounding boxes
+                            recognition_results.append({
+                                'class': int(box.cls),  # Class ID (int)
+                                'name': response.names[int(box.cls)],  # Class name
+                                'confidence': float(box.conf),  # Confidence score
+                                'bbox': box.xyxy.tolist()  # Bounding box coordinates
+                            })
+
                     print("Recognition results:", recognition_results)
                 else:
-                    print(f"Error from recognition server: {response.status_code}")
+                    print("Error: No response from YOLO model")
             except Exception as e:
-                print(f"Error sending frame to recognition server: {e}")
+                print(f"Error during recognition: {e}")
 
             last_recognition_time = current_time 
 
+            # Send recognition results via WebSocket
             message = {
                 'recognition': recognition_results
             }
-
-            print(recognition_results)
-
             await websocket.send(json.dumps(message))
         
+        # Send raw frame data as is
         await websocket.send(frame_data)
         queue.task_done()
 
