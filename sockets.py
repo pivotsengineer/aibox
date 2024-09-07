@@ -7,6 +7,8 @@ import time
 import os
 import requests
 from io import BytesIO
+import cv2
+import numpy as np
 
 from pathlib import Path
 import torch
@@ -137,7 +139,9 @@ async def send_frames(queue: asyncio.Queue, websocket):
 
         if current_time - last_recognition_time >= recognition_interval:
             try:
-                response = model(frame_data, save=False)
+                np_arr = np.frombuffer(frame_data, np.uint8)
+                img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+                response = model(img, save=False)
                 if response:
                     recognition_results = response.json()
                     print("Recognition results:", recognition_results)
