@@ -149,11 +149,19 @@ async def send_frames(queue: asyncio.Queue, websocket):
                 predictions = []
                 for result in response:
                     if result.probs is not None:  # Ensure there are predictions
-                        top_classes = result.probs.topk(5)  # Get top 5 predictions
-                        for class_id, confidence in zip(top_classes.indices, top_classes.values):
+                        # Get the top 1 prediction
+                        top1_class = result.names[result.probs.top1]
+                        top1_confidence = float(result.probs.top1conf)
+                        
+                        # Get the top 5 predictions
+                        top5_classes = [result.names[i] for i in result.probs.top5]
+                        top5_confidences = [float(conf) for conf in result.probs.top5conf]
+
+                        # Combine into a single prediction list
+                        for class_name, confidence in zip(top5_classes, top5_confidences):
                             predictions.append({
-                                'class': result.names[class_id],  # Class name
-                                'confidence': float(confidence)  # Confidence score
+                                'class': class_name,
+                                'confidence': confidence
                             })
 
                 message = {'recognition': predictions}
