@@ -8,7 +8,7 @@
 <body>
     <div style="position: relative;">
         <img id="videoFrame" src="" alt="Video Frame">
-        <div id="recognitionResults" style="position: absolute; background-color: black; left: 20px; top: 20px; font-size: 3rem; color: white; font-weight: bold;"></div>
+        <div id="recognitionResults"></div>
     </div>
     
 
@@ -22,7 +22,7 @@
             websocket.onmessage = function(event) {
                 if (typeof event.data === 'string') {
                     let re = JSON.parse(event.data);
-
+                    const resultsDiv = document.getElementById("recognitionResults")
                     resultsDiv.innerHTML = '';
 
                     if (Array.isArray(recognitionResults?.predictions) && recognitionResults.predictions.length > 0) {
