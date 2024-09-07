@@ -139,9 +139,11 @@ async def send_frames(queue: asyncio.Queue, websocket):
         if current_time - last_recognition_time >= recognition_interval:
             try:
                 # Decode JPEG binary data to NumPy array
-                np_arr = np.frombuffer(frame_data, np.uint8)
-                img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
-                json_output = get_predictions_as_json(img)
+                #np_arr = np.frombuffer(frame_data, np.uint8)
+                #img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+                json_output = get_predictions_as_json(frame_data)
+
+                print(json_output)
 
             except Exception as e:
                 print(f"Error during recognition: {e}")
@@ -169,6 +171,8 @@ def get_predictions_as_json(image):
         if probs is not None:
             # Convert probs to a numpy array for easier manipulation
             probs_array = probs.numpy() if isinstance(probs, torch.Tensor) else probs
+
+            print(probs_array)
 
             # Extract top-1 prediction
             top1_index = probs.top1
