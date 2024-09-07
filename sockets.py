@@ -135,7 +135,6 @@ async def send_frames(queue: asyncio.Queue, websocket):
     while True:
         frame_data = await queue.get()
         current_time = time.time()
-        recognition_results = []
 
         if current_time - last_recognition_time >= recognition_interval:
             try:
@@ -146,20 +145,21 @@ async def send_frames(queue: asyncio.Queue, websocket):
                 # Run YOLO recognition on the decoded image
                 response = model(img, save=False)
 
-                # Check if the result is classification
-                if response:
-                    result = response[0]  # Extract the first result
-                    if result.probs:  # Check if classification results are present
-                        for class_id, prob in result.probs.topk(5):  # Get the top 5 predictions
-                            recognition_results.append({
-                                'class': class_id,
-                                'name': result.names[class_id],  # Access class name
-                                'confidence': float(prob)  # Convert probability to float
-                            })
+                # Process results and return the highest probability class
+                predictions = []
+                for result in response:
+                    probs = result.probs
+                    if probs is not None:
+                        max_prob_index = probs.top1
+                        class_name = result.names[max_prob_index]
+                        confidence = probs.top1conf
+                        predictions.append({
+                            'class': class_name,
+                            'confidence': confidence.item()
+                        })
+                    else:
+                        response.append({'error': 'No class prediction found'})
 
-                    print("Recognition results:", recognition_results)
-                else:
-                    print("Error: No response from YOLO model")
             except Exception as e:
                 print(f"Error during recognition: {e}")
 
@@ -167,7 +167,7 @@ async def send_frames(queue: asyncio.Queue, websocket):
 
             # Send recognition results via WebSocket
             message = {
-                'recognition': recognition_results
+                'recognition': response
             }
             await websocket.send(json.dumps(message))
 
