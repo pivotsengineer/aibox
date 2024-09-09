@@ -32,20 +32,19 @@
             const websocket = new WebSocket('ws://192.168.0.124:8765');
             let isReceivingFrame = true;
             const resultsDiv = document.getElementById("recognitionResults");
-            const videoFrame = document.getElementById('videoFrame')
+            const videoFrame = document.getElementById('videoFrame');
+            const resultItem = document.createElement('div');
             let lastUpdate = 0;  // Keep track of the last time the UI was updated
             const minUpdateInterval = 500; 
 
-            websocket.binaryType = 'arraybuffer';
-
             websocket.onmessage = function(event) {
+                console.log(1);
                 if (typeof event.data === 'string') {
                     try {
                         let recognitionResults = JSON.parse(event.data);
                         resultsDiv.innerHTML = '';
                         if (Array.isArray(recognitionResults?.predictions) && recognitionResults.predictions.length > 0) {
                             recognitionResults.predictions.forEach(prediction => {
-                                let resultItem = document.createElement('div');
                                 resultItem.className = 'resultItem'; // Use CSS class for styling
                                 resultItem.innerHTML = `${prediction.class}`;
                                 resultsDiv.appendChild(resultItem);
