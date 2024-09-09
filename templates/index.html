@@ -30,10 +30,10 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const websocket = new WebSocket('ws://192.168.0.124:8765');
-            let isReceivingFrame = true;
             const resultsDiv = document.getElementById("recognitionResults");
-            let lastUpdate = 0;  // Keep track of the last time the UI was updated
-            const minUpdateInterval = 500; // Minimum interval between UI updates in ms (500 ms = 2 updates per second)
+            const videoFrame = document.getElementById('videoFrame');
+            let lastUpdate = 0;
+            const minUpdateInterval = 500;
     
             websocket.onmessage = function(event) {
                 const now = Date.now();  // Current timestamp
@@ -60,19 +60,15 @@
                     } catch (e) {
                         console.error('Error parsing JSON:', e);
                     }
-                    isReceivingFrame = true;
                 } else if (event.data instanceof ArrayBuffer) {
-                    if (isReceivingFrame) {
-                        let arrayBuffer = event.data;
-                        let blob = new Blob([arrayBuffer], { type: 'image/jpeg' });
-                        let url = URL.createObjectURL(blob);
-                        document.getElementById('videoFrame').src = url;
-                        isReceivingFrame = false;
-                    }
+                    let arrayBuffer = event.data;
+                    let blob = new Blob([arrayBuffer], { type: 'image/jpeg' });
+                    let url = URL.createObjectURL(blob);
+                    videoFrame.src = url;
                 }
-    
                 lastUpdate = now; // Update the last update time
             };
+
         });
     </script>
     
