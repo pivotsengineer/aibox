@@ -166,19 +166,10 @@ async def send_frames(queue: asyncio.Queue, websocket):
                         # Convert tensors to native Python types
                         top1_index = probs.top1
                         top1_conf = probs.top1conf.item()
-                        top5_indices = probs.top5
-                        top5_confs = probs.top5conf.tolist()  # Convert tensor to list
 
                         prediction = {
                             'class': result.names[top1_index],
-                            'confidence': top1_conf,
-                            'top5': [
-                                {
-                                    'class': result.names[i],
-                                    'confidence': conf,
-                                }
-                                for i, conf in zip(top5_indices, top5_confs)
-                            ]
+                            'confidence': top1_conf
                         }
                         predictions.append(prediction)
 
