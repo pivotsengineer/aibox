@@ -63,7 +63,7 @@
                 } catch (e) {
                     console.error('Error parsing JSON:', e);
                 }
-            } else if (event.data instanceof ArrayBuffer) {
+            } else if (event.data instanceof Object) {
                 console.log('ArrayBuffer received');
                 let arrayBuffer = event.data;
                 let blob = new Blob([arrayBuffer], { type: 'image/jpeg' });
