@@ -35,8 +35,20 @@
         let lastUpdate = 0;
         const minUpdateInterval = 10;
 
+        websocket.onopen = function() {
+            console.log('WebSocket connection established');
+        };
+
+        websocket.onclose = function(event) {
+            console.log('WebSocket connection closed', event);
+            setTimeout(connectWebSocket, 1000);
+        };
+
+        websocket.onerror = function(error) {
+            console.error('WebSocket error:', error);
+        };
+
         websocket.onmessage = function(event) {
-            // Throttle updates to occur only every minUpdateInterval ms
             const now = Date.now();
             if (now - lastUpdate < minUpdateInterval) {
                 return;
@@ -50,7 +62,7 @@
                     if (Array.isArray(recognitionResults?.predictions) && recognitionResults.predictions.length > 0) {
                         recognitionResults.predictions.forEach(prediction => {
                             const resultItem = document.createElement('div');
-                            resultItem.className = 'resultItem'; // Use CSS class for styling
+                            resultItem.className = 'resultItem';
                             resultItem.innerHTML = `${prediction.class}`;
                             resultsDiv.appendChild(resultItem);
                         });
@@ -61,13 +73,12 @@
                     console.error('Error parsing JSON:', e);
                 }
             } else if (event.data instanceof Object) {
-                // for debug: console.log('Image received');
                 let arrayBuffer = event.data;
                 let blob = new Blob([arrayBuffer], { type: 'image/jpeg' });
                 let url = URL.createObjectURL(blob);
                 videoFrame.src = url;
             }
-            lastUpdate = now; // Update the last update time
+            lastUpdate = now;
         };
     });
 
