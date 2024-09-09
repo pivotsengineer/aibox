@@ -148,6 +148,7 @@ async def send_frames(queue: asyncio.Queue, websocket):
                 # Process results and convert to JSON-serializable format
                 predictions = []
                 for result in results:
+                    print(result)
                     probs = result.probs
                     if probs is not None:
                         # Convert tensors to native Python types
@@ -162,7 +163,7 @@ async def send_frames(queue: asyncio.Queue, websocket):
                             'top5': [
                                 {
                                     'class': result.names[i],
-                                    'confidence': conf
+                                    'confidence': conf,
                                 }
                                 for i, conf in zip(top5_indices, top5_confs)
                             ]
