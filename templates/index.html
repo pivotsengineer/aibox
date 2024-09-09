@@ -29,48 +29,51 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const websocket = new WebSocket('ws://192.168.0.124:8765');
-            const resultsDiv = document.getElementById("recognitionResults");
-            const videoFrame = document.getElementById('videoFrame');
-            let lastUpdate = 0;
-            const minUpdateInterval = 500;
-    
-            websocket.onmessage = function(event) {
-                const now = Date.now();  // Current timestamp
-    
-                // Throttle updates to occur only every minUpdateInterval ms
-                if (now - lastUpdate < minUpdateInterval) {
-                    return;
-                }
-    
-                if (typeof event.data === 'string') {
-                    try {
-                        let recognitionResults = JSON.parse(event.data);
-                        resultsDiv.innerHTML = '';
-                        if (Array.isArray(recognitionResults?.predictions) && recognitionResults.predictions.length > 0) {
-                            recognitionResults.predictions.forEach(prediction => {
-                                const resultItem = document.createElement('div');
-                                resultItem.className = 'resultItem'; // Use CSS class for styling
-                                resultItem.innerHTML = `${prediction.class}`;
-                                resultsDiv.appendChild(resultItem);
-                            });
-                        } else {
-                            resultsDiv.innerHTML = 'No results found.';
-                        }
-                    } catch (e) {
-                        console.error('Error parsing JSON:', e);
-                    }
-                } else if (event.data instanceof ArrayBuffer) {
-                    console.log('ArrayBuffer');
-                    let arrayBuffer = event.data;
-                    let blob = new Blob([arrayBuffer], { type: 'image/jpeg' });
-                    let url = URL.createObjectURL(blob);
-                    videoFrame.src = url;
-                }
-                lastUpdate = now; // Update the last update time
-            };
+        const websocket = new WebSocket('ws://192.168.0.124:8765');
+        const resultsDiv = document.getElementById("recognitionResults");
+        const videoFrame = document.getElementById('videoFrame');
+        let lastUpdate = 0;
+        const minUpdateInterval = 500;
 
-        });
+        websocket.onmessage = function(event) {
+            const now = Date.now();  // Current timestamp
+        
+            // Log the type of data received
+            console.log("Received data type:", typeof event.data, event.data instanceof ArrayBuffer ? "ArrayBuffer" : "");
+
+            // Throttle updates to occur only every minUpdateInterval ms
+            if (now - lastUpdate < minUpdateInterval) {
+                return;
+            }
+        
+            if (typeof event.data === 'string') {
+                try {
+                    let recognitionResults = JSON.parse(event.data);
+                    resultsDiv.innerHTML = '';
+                    if (Array.isArray(recognitionResults?.predictions) && recognitionResults.predictions.length > 0) {
+                        recognitionResults.predictions.forEach(prediction => {
+                            const resultItem = document.createElement('div');
+                            resultItem.className = 'resultItem'; // Use CSS class for styling
+                            resultItem.innerHTML = `${prediction.class}`;
+                            resultsDiv.appendChild(resultItem);
+                        });
+                    } else {
+                        resultsDiv.innerHTML = 'No results found.';
+                    }
+                } catch (e) {
+                    console.error('Error parsing JSON:', e);
+                }
+            } else if (event.data instanceof ArrayBuffer) {
+                console.log('ArrayBuffer received');
+                let arrayBuffer = event.data;
+                let blob = new Blob([arrayBuffer], { type: 'image/jpeg' });
+                let url = URL.createObjectURL(blob);
+                videoFrame.src = url;
+            }
+            lastUpdate = now; // Update the last update time
+        };
+    });
+
     </script>
     
 </body>
