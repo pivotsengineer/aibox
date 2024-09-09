@@ -149,18 +149,13 @@ async def send_frames(queue: asyncio.Queue, websocket):
                 predictions = []
                 for result in results:
                     probs = result.probs
-                    print(probs)
+                    print('probs', probs)
                     if probs is not None:
                         # Convert tensors to native Python types
                         top1_index = probs.top1
                         top1_conf = probs.top1conf.item()
                         top5_indices = probs.top5
                         top5_confs = probs.top5conf.tolist()  # Convert tensor to list
-                        x1, y1, x2, y2 = [0, 0, 0, 0]
-
-                        if result.boxes is not None:
-                            for box in result.boxes:
-                                x1, y1, x2, y2 = box.xyxy[0].int().tolist()
 
                         prediction = {
                             'class': result.names[top1_index],
@@ -169,7 +164,6 @@ async def send_frames(queue: asyncio.Queue, websocket):
                                 {
                                     'class': result.names[i],
                                     'confidence': conf,
-                                    'boxes': [x1, y1, x2, y2]
                                 }
                                 for i, conf in zip(top5_indices, top5_confs)
                             ]

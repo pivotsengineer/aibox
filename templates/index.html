@@ -36,12 +36,8 @@
         const minUpdateInterval = 30;
 
         websocket.onmessage = function(event) {
-            const now = Date.now();  // Current timestamp
-        
-            // Log the type of data received
-            console.log("Received data type:", typeof event.data, event.data instanceof ArrayBuffer ? "ArrayBuffer" : "");
-
             // Throttle updates to occur only every minUpdateInterval ms
+            const now = Date.now();
             if (now - lastUpdate < minUpdateInterval) {
                 return;
             }
@@ -65,7 +61,7 @@
                     console.error('Error parsing JSON:', e);
                 }
             } else if (event.data instanceof Object) {
-                console.log('ArrayBuffer received');
+                // for debug: console.log('Image received');
                 let arrayBuffer = event.data;
                 let blob = new Blob([arrayBuffer], { type: 'image/jpeg' });
                 let url = URL.createObjectURL(blob);
