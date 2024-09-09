@@ -82,52 +82,62 @@ async def capture_frames(queue: asyncio.Queue):
     retry_attempts = 0
     max_retries = 5
 
+    last_reset_time = time.time()  # Initialize the last reset timestamp
+
     while True:
-        try:
-            check_and_release_camera()
+        current_time = time.time()
 
-            process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        # Check if enough time has passed since the last reset
+        if current_time - last_reset_time >= 1:  # 1 second interval
+            try:
+                check_and_release_camera()
+                last_reset_time = current_time  # Update the last reset timestamp
 
-            while True:
-                chunk = process.stdout.read(chunk_size)
-                if not chunk:
-                    print('No frame data received')
-                    await asyncio.sleep(onFrameErrorTimeout)
-                    return_code = process.poll()
-                    if return_code is not None:
-                        print(f"libcamera-vid terminated with return code: {return_code}")
-                        stderr_output = process.stderr.read().decode()
-                        print(f"libcamera-vid error: {stderr_output}")
-                        break
-                else:
-                    buffer.extend(chunk)
+                process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-                start_index = buffer.find(start_index_regexp)
-                end_index = buffer.find(end_index_regexp)
+                while True:
+                    chunk = process.stdout.read(chunk_size)
+                    if not chunk:
+                        print('No frame data received')
+                        await asyncio.sleep(onFrameErrorTimeout)
+                        return_code = process.poll()
+                        if return_code is not None:
+                            print(f"libcamera-vid terminated with return code: {return_code}")
+                            stderr_output = process.stderr.read().decode()
+                            print(f"libcamera-vid error: {stderr_output}")
+                            break
+                    else:
+                        buffer.extend(chunk)
 
-                if start_index != -1 and end_index != -1 and end_index > start_index:
-                    end_index += len(end_index_regexp)
-                    frame_data = buffer[start_index:end_index]
-                    buffer = buffer[end_index:]
+                    start_index = buffer.find(start_index_regexp)
+                    end_index = buffer.find(end_index_regexp)
 
-                    await queue.put(frame_data)
+                    if start_index != -1 and end_index != -1 and end_index > start_index:
+                        end_index += len(end_index_regexp)
+                        frame_data = buffer[start_index:end_index]
+                        buffer = buffer[end_index:]
 
-                if len(buffer) > chunk_size * 8:
-                    buffer = buffer[-chunk_size:]
+                        await queue.put(frame_data)
 
-        except Exception as e:
-            print(f"An error occurred: {e}")
+                    if len(buffer) > chunk_size * 8:
+                        buffer = buffer[-chunk_size:]
 
-        finally:
-            terminateProcess(process)
-            await asyncio.sleep(afterCheckTimeout)
-            retry_attempts += 1
+            except Exception as e:
+                print(f"An error occurred: {e}")
 
-            if retry_attempts >= max_retries:
-                print(f"Reached max retry attempts ({max_retries}). Exiting capture loop.")
-                break
+            finally:
+                terminateProcess(process)
+                await asyncio.sleep(afterCheckTimeout)
+                retry_attempts += 1
 
-            print(f"Retrying... ({retry_attempts}/{max_retries})")
+                if retry_attempts >= max_retries:
+                    print(f"Reached max retry attempts ({max_retries}). Exiting capture loop.")
+                    break
+
+                print(f"Retrying... ({retry_attempts}/{max_retries})")
+
+        else:
+            await asyncio.sleep(0.1)  # Sleep briefly before checking the reset interval again
 
 async def send_frames(queue: asyncio.Queue, websocket):
     last_recognition_time = time.time()
