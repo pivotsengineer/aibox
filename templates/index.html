@@ -66,6 +66,7 @@
             } else if (event.data instanceof Object) {
                 console.log('ArrayBuffer received');
                 let arrayBuffer = event.data;
+                console.log(event.data);
                 let blob = new Blob([arrayBuffer], { type: 'image/jpeg' });
                 let url = URL.createObjectURL(blob);
                 videoFrame.src = url;
