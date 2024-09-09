@@ -28,62 +28,64 @@
     </div>
     
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('content loaded');
-            const websocket = new WebSocket('ws://192.168.0.124:8765');
-            const resultsDiv = document.getElementById("recognitionResults");
-            const videoFrame = document.getElementById('videoFrame');
-            let lastUpdate = 0;
-            const minUpdateInterval = 10;
+        setTimeout(() => {
+            document.addEventListener('DOMContentLoaded', () => {
+                console.log('content loaded');
+                const websocket = new WebSocket('ws://192.168.0.124:8765');
+                const resultsDiv = document.getElementById("recognitionResults");
+                const videoFrame = document.getElementById('videoFrame');
+                let lastUpdate = 0;
+                const minUpdateInterval = 10;
 
-            websocket.onopen = function() {
-                console.log('WebSocket connection established');
-            };
+                websocket.onopen = function() {
+                    console.log('WebSocket connection established');
+                };
 
-            websocket.onclose = function(event) {
-                console.log('WebSocket connection closed', event);
-                setTimeout(connectWebSocket, 1000);
-            };
+                websocket.onclose = function(event) {
+                    console.log('WebSocket connection closed', event);
+                    setTimeout(connectWebSocket, 1000);
+                };
 
-            websocket.onerror = function(error) {
-                console.error('WebSocket error:', error);
-            };
+                websocket.onerror = function(error) {
+                    console.error('WebSocket error:', error);
+                };
 
-            websocket.onmessage = function(event) {
-                const now = Date.now();
-                if (now - lastUpdate < minUpdateInterval) {
-                    return;
-                }
-            
-                if (typeof event.data === 'string') {
-                    try {
-                        let recognitionResults = JSON.parse(event.data);
-                        console.log(recognitionResults);
-                        resultsDiv.innerHTML = '';
-                        if (Array.isArray(recognitionResults?.predictions) && recognitionResults.predictions.length > 0) {
-                            recognitionResults.predictions.forEach(prediction => {
-                                const resultItem = document.createElement('div');
-                                resultItem.className = 'resultItem';
-                                if(prediction.class !== 'testing') {
-                                    resultItem.innerHTML = `${prediction.class}`;
-                                    resultsDiv.appendChild(resultItem);
-                                }
-                            });
-                        } else {
-                            resultsDiv.innerHTML = 'No results found.';
-                        }
-                    } catch (e) {
-                        console.error('Error parsing JSON:', e);
+                websocket.onmessage = function(event) {
+                    const now = Date.now();
+                    if (now - lastUpdate < minUpdateInterval) {
+                        return;
                     }
-                } else if (event.data instanceof Object) {
-                    let arrayBuffer = event.data;
-                    let blob = new Blob([arrayBuffer], { type: 'image/jpeg' });
-                    let url = URL.createObjectURL(blob);
-                    videoFrame.src = url;
-                }
-                lastUpdate = now;
-            };
-        });
+                
+                    if (typeof event.data === 'string') {
+                        try {
+                            let recognitionResults = JSON.parse(event.data);
+                            console.log(recognitionResults);
+                            resultsDiv.innerHTML = '';
+                            if (Array.isArray(recognitionResults?.predictions) && recognitionResults.predictions.length > 0) {
+                                recognitionResults.predictions.forEach(prediction => {
+                                    const resultItem = document.createElement('div');
+                                    resultItem.className = 'resultItem';
+                                    if(prediction.class !== 'testing') {
+                                        resultItem.innerHTML = `${prediction.class}`;
+                                        resultsDiv.appendChild(resultItem);
+                                    }
+                                });
+                            } else {
+                                resultsDiv.innerHTML = 'No results found.';
+                            }
+                        } catch (e) {
+                            console.error('Error parsing JSON:', e);
+                        }
+                    } else if (event.data instanceof Object) {
+                        let arrayBuffer = event.data;
+                        let blob = new Blob([arrayBuffer], { type: 'image/jpeg' });
+                        let url = URL.createObjectURL(blob);
+                        videoFrame.src = url;
+                    }
+                    lastUpdate = now;
+                };
+            });
+        }, 1000);
 
     </script>
     
