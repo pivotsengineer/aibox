@@ -148,8 +148,8 @@ async def send_frames(queue: asyncio.Queue, websocket):
                 # Process results and convert to JSON-serializable format
                 predictions = []
                 for result in results:
-                    print(result)
                     probs = result.probs
+                    print(probs)
                     if probs is not None:
                         # Convert tensors to native Python types
                         top1_index = probs.top1
