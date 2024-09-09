@@ -145,7 +145,7 @@ async def send_frames(queue: asyncio.Queue, websocket):
                 # Run YOLO recognition on the decoded image
                 results = model(img, save=False)
 
-                print(results.xyxy)
+                print(results)
 
                 # Process results and convert to JSON-serializable format
                 predictions = []
