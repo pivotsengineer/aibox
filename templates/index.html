@@ -1,49 +1,81 @@
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const websocket = new WebSocket('ws://192.168.0.124:8765');
-        let isReceivingFrame = true;
-        const resultsDiv = document.getElementById("recognitionResults");
-        const videoFrame = document.getElementById('videoFrame');
-        let lastUpdate = 0;  // Keep track of the last time the UI was updated
-        const minUpdateInterval = 500; // Minimum interval between UI updates in ms (500 ms = 2 updates per second)
-
-        websocket.onmessage = function(event) {
-            const now = Date.now();  // Current timestamp
-
-            // Throttle updates to occur only every minUpdateInterval ms
-            if (now - lastUpdate < minUpdateInterval) {
-                return;
-            }
-
-            if (typeof event.data === 'string') {
-                try {
-                    let recognitionResults = JSON.parse(event.data);
-                    resultsDiv.innerHTML = '';
-                    if (Array.isArray(recognitionResults?.predictions) && recognitionResults.predictions.length > 0) {
-                        recognitionResults.predictions.forEach(prediction => {
-                            const resultItem = document.createElement('div');
-                            resultItem.className = 'resultItem'; // Use CSS class for styling
-                            resultItem.innerHTML = `${prediction.class}`;
-                            resultsDiv.appendChild(resultItem);
-                        });
-                    } else {
-                        resultsDiv.innerHTML = 'No results found.';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Stream</title>
+    <style>
+        #wrapper {
+            position: relative;
+        }
+        #recognitionResults {
+            position: absolute;
+        }
+        .resultItem {
+            background-color: black;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div style="position: relative;" id="wrapper">
+        <div id="recognitionResults"></div>
+        <img id="videoFrame" src="" alt="Video Frame">
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const websocket = new WebSocket('ws://192.168.0.124:8765');
+            let isReceivingFrame = true;
+            const resultsDiv = document.getElementById("recognitionResults");
+            const videoFrame = document.getElementById('videoFrame');
+            let lastUpdate = 0;  // Keep track of the last time the UI was updated
+            const minUpdateInterval = 500; // Minimum interval between UI updates in ms (500 ms = 2 updates per second)
+    
+            websocket.onmessage = function(event) {
+                const now = Date.now();  // Current timestamp
+    
+                // Throttle updates to occur only every minUpdateInterval ms
+                if (now - lastUpdate < minUpdateInterval) {
+                    return;
+                }
+    
+                if (typeof event.data === 'string') {
+                    try {
+                        let recognitionResults = JSON.parse(event.data);
+                        resultsDiv.innerHTML = '';
+                        if (Array.isArray(recognitionResults?.predictions) && recognitionResults.predictions.length > 0) {
+                            recognitionResults.predictions.forEach(prediction => {
+                                const resultItem = document.createElement('div');
+                                resultItem.className = 'resultItem'; // Use CSS class for styling
+                                resultItem.innerHTML = `${prediction.class}`;
+                                resultsDiv.appendChild(resultItem);
+                            });
+                        } else {
+                            resultsDiv.innerHTML = 'No results found.';
+                        }
+                    } catch (e) {
+                        console.error('Error parsing JSON:', e);
                     }
-                } catch (e) {
-                    console.error('Error parsing JSON:', e);
+                    isReceivingFrame = true;
+                } else if (event.data instanceof ArrayBuffer) {
+                    if (isReceivingFrame) {
+                        let arrayBuffer = event.data;
+                        let blob = new Blob([arrayBuffer], { type: 'image/jpeg' });
+                        let url = URL.createObjectURL(blob);
+                        videoFrame.src = url;
+                        isReceivingFrame = false;
+                    }
                 }
-                isReceivingFrame = true;
-            } else if (event.data instanceof ArrayBuffer) {
-                if (isReceivingFrame) {
-                    let arrayBuffer = event.data;
-                    let blob = new Blob([arrayBuffer], { type: 'image/jpeg' });
-                    let url = URL.createObjectURL(blob);
-                    videoFrame.src = url;
-                    isReceivingFrame = false;
-                }
-            }
-
-            lastUpdate = now; // Update the last update time
-        };
-    });
-</script>
+    
+                lastUpdate = now; // Update the last update time
+            };
+        });
+    </script>
+    
+</body>
+</html>
