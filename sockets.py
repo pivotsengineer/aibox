@@ -145,25 +145,39 @@ async def send_frames(queue: asyncio.Queue, websocket):
                 # Run YOLO recognition on the decoded image
                 results = model(img, save=False)
 
-                # Prepare JSON for recognition results
+                # Process results and convert to JSON-serializable format
                 predictions = []
                 for result in results:
-                    if result.boxes is not None:
-                        for box in result.boxes:
-                            x1, y1, x2, y2 = box.xyxy[0].int().tolist()  # Bounding box coordinates
-                            class_id = int(box.cls[0].item())
-                            confidence = box.conf[0].item()
+                    probs = result.probs
+                    print(probs)
+                    if probs is not None:
+                        # Convert tensors to native Python types
+                        top1_index = probs.top1
+                        top1_conf = probs.top1conf.item()
+                        top5_indices = probs.top5
+                        top5_confs = probs.top5conf.tolist()  # Convert tensor to list
+                        x1, y1, x2, y2 = [0, 0, 0, 0]
 
-                            prediction = {
-                                'class': result.names[class_id],
-                                'confidence': confidence,
-                                'bbox': [x1, y1, x2, y2]
-                            }
-                            predictions.append(prediction)
+                        if result.boxes is not None:
+                            for box in result.boxes:
+                                x1, y1, x2, y2 = box.xyxy[0].int().tolist()
+
+                        prediction = {
+                            'class': result.names[top1_index],
+                            'confidence': top1_conf,
+                            'top5': [
+                                {
+                                    'class': result.names[i],
+                                    'confidence': conf,
+                                    'boxes': [x1, y1, x2, y2]
+                                }
+                                for i, conf in zip(top5_indices, top5_confs)
+                            ]
+                        }
+                        predictions.append(prediction)
 
                 json_output = json.dumps({'predictions': predictions}, indent=2)
 
-                # Send recognition data as JSON
                 await websocket.send(json_output)
 
             except Exception as e:
