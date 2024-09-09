@@ -64,7 +64,7 @@
                             recognitionResults.predictions.forEach(prediction => {
                                 const resultItem = document.createElement('div');
                                 resultItem.className = 'resultItem';
-                                if(prediction.class !== 'testing') {
+                                if(prediction.confidence > 0.8) {
                                     resultItem.innerHTML = `${prediction.class}`;
                                     resultsDiv.appendChild(resultItem);
                                 }
