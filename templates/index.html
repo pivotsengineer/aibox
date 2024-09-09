@@ -33,7 +33,6 @@
             let isReceivingFrame = true;
             const resultsDiv = document.getElementById("recognitionResults");
             const videoFrame = document.getElementById('videoFrame');
-            const resultItem = document.createElement('div');
             let lastUpdate = 0;  // Keep track of the last time the UI was updated
             const minUpdateInterval = 500; 
 
@@ -41,10 +40,12 @@
                 console.log(1);
                 if (typeof event.data === 'string') {
                     try {
+                        console.log(2);
                         let recognitionResults = JSON.parse(event.data);
                         resultsDiv.innerHTML = '';
                         if (Array.isArray(recognitionResults?.predictions) && recognitionResults.predictions.length > 0) {
                             recognitionResults.predictions.forEach(prediction => {
+                                const resultItem = document.createElement('div');
                                 resultItem.className = 'resultItem'; // Use CSS class for styling
                                 resultItem.innerHTML = `${prediction.class}`;
                                 resultsDiv.appendChild(resultItem);
@@ -58,6 +59,7 @@
                     isReceivingFrame = true;
                 } else if (event.data instanceof ArrayBuffer) {
                     if (isReceivingFrame) {
+                        console.log(3);
                         let arrayBuffer = event.data;
                         let blob = new Blob([arrayBuffer], { type: 'image/jpeg' });
                         let url = URL.createObjectURL(blob);
