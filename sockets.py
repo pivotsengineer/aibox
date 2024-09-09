@@ -32,7 +32,7 @@ start_index_regexp = b'\xFF\xD8'  # JPEG start marker
 end_index_regexp = b'\xFF\xD9'  # JPEG end marker
 ping_interval = 30  # Ping every 30 seconds to keep the connection alive
 recognition_server_url = 'http://192.168.0.37:8001/predict'  # Your recognition server
-recognition_interval = 2  # Time interval to send frames for recognition (in seconds)
+recognition_interval = 1  # Time interval to send frames for recognition (in seconds)
 
 
 
@@ -183,7 +183,6 @@ async def send_frames(queue: asyncio.Queue, websocket):
         # Send raw frame data as is
         await websocket.send(frame_data)
         queue.task_done()
-        await asyncio.sleep(afterSendTimeout)
 
 async def ping_websocket(websocket):
     while True:
