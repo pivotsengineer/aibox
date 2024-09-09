@@ -33,7 +33,7 @@
         const resultsDiv = document.getElementById("recognitionResults");
         const videoFrame = document.getElementById('videoFrame');
         let lastUpdate = 0;
-        const minUpdateInterval = 100;
+        const minUpdateInterval = 50;
 
         websocket.onmessage = function(event) {
             const now = Date.now();  // Current timestamp
