@@ -29,6 +29,7 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            console.log('content loaded');
             const websocket = new WebSocket('ws://192.168.0.124:8765');
             const resultsDiv = document.getElementById("recognitionResults");
             const videoFrame = document.getElementById('videoFrame');
