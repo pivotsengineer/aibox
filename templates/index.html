@@ -33,7 +33,7 @@
         const resultsDiv = document.getElementById("recognitionResults");
         const videoFrame = document.getElementById('videoFrame');
         let lastUpdate = 0;
-        const minUpdateInterval = 30;
+        const minUpdateInterval = 10;
 
         websocket.onmessage = function(event) {
             // Throttle updates to occur only every minUpdateInterval ms
