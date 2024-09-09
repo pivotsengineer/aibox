@@ -32,7 +32,6 @@
             const websocket = new WebSocket('ws://192.168.0.124:8765');
             let isReceivingFrame = true;
             const resultsDiv = document.getElementById("recognitionResults");
-            const videoFrame = document.getElementById('videoFrame');
             let lastUpdate = 0;  // Keep track of the last time the UI was updated
             const minUpdateInterval = 500; // Minimum interval between UI updates in ms (500 ms = 2 updates per second)
     
@@ -67,7 +66,7 @@
                         let arrayBuffer = event.data;
                         let blob = new Blob([arrayBuffer], { type: 'image/jpeg' });
                         let url = URL.createObjectURL(blob);
-                        videoFrame.src = url;
+                        document.getElementById('videoFrame').src = url;
                         isReceivingFrame = false;
                     }
                 }
