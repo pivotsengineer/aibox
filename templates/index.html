@@ -28,8 +28,8 @@
     </div>
     
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            console.log('content loaded');
+        const runSocket = () => {
+            console.log('runSocket start');
             const websocket = new WebSocket('ws://192.168.0.124:8765');
             const resultsDiv = document.getElementById("recognitionResults");
             const videoFrame = document.getElementById('videoFrame');
@@ -83,6 +83,10 @@
                 }
                 lastUpdate = now;
             };
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('content loaded');
+            setTimeout(() => runSocket(), 1000);
         });
 
     </script>
