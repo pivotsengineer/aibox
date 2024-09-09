@@ -24,7 +24,7 @@ sys.path.insert(0, yolov5_repo_path)
 
 camera_device = "/dev/media1"
 afterCheckTimeout = 2
-afterSendTimeout = 0.05
+afterSendTimeout = 0.02
 chunk_size = 1024 * 4
 onFrameErrorTimeout = 0.02
 bufferSize = 8
