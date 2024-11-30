@@ -68,7 +68,7 @@ async def capture_frames(queue: asyncio.Queue):
         '--codec', 'mjpeg',
         '--width', '640',
         '--height', '480',
-        '--framerate', '60',
+        '--framerate', '30',
         '--roi', '0.0,0.0,1.0,1.0',
         '-t', '0',
         '--inline',
@@ -141,45 +141,47 @@ async def send_frames(queue: asyncio.Queue, websocket):
 
     while True:
         frame_data = await queue.get()
-        current_time = time.time()
+        # current_time = time.time()
 
-        if current_time - last_recognition_time >= recognition_interval:
-            try:
-                # Convert frame data to NumPy array
-                np_arr = np.frombuffer(frame_data, np.uint8)
-                img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
+        # image recognition part
+        #
+        # if current_time - last_recognition_time >= recognition_interval:
+        #     try:
+        #         # Convert frame data to NumPy array
+        #         np_arr = np.frombuffer(frame_data, np.uint8)
+        #         img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
 
-                # Run YOLO recognition on the decoded image
-                results = model(img, save=False)
+        #         # Run YOLO recognition on the decoded image
+        #         results = model(img, save=False)
 
-                print('recognition results', results)
+        #         print('recognition results', results)
 
-                # Process results and convert to JSON-serializable format
-                predictions = []
-                for result in results:
-                    probs = result.probs
-                    print('probs', probs)
-                    if probs is not None:
-                        # Convert tensors to native Python types
-                        top1_index = probs.top1
-                        top1_conf = probs.top1conf.item()
+        #         # Process results and convert to JSON-serializable format
+        #         predictions = []
+        #         for result in results:
+        #             probs = result.probs
+        #             print('probs', probs)
+        #             if probs is not None:
+        #                 # Convert tensors to native Python types
+        #                 top1_index = probs.top1
+        #                 top1_conf = probs.top1conf.item()
 
-                        prediction = {
-                            'class': result.names[top1_index],
-                            'confidence': top1_conf
-                        }
-                        predictions.append(prediction)
+        #                 prediction = {
+        #                     'class': result.names[top1_index],
+        #                     'confidence': top1_conf
+        #                 }
+        #                 predictions.append(prediction)
 
-                json_output = json.dumps({'predictions': predictions}, indent=2)
+        #         json_output = json.dumps({'predictions': predictions}, indent=2)
 
-                await websocket.send(json_output)
+        #         await websocket.send(json_output)
 
-            except Exception as e:
-                print(f"Error during recognition: {e}")
-                json_output = json.dumps({'error': str(e)})
-                await websocket.send(json_output)
+        #     except Exception as e:
+        #         print(f"Error during recognition: {e}")
+        #         json_output = json.dumps({'error': str(e)})
+        #         await websocket.send(json_output)
 
-            last_recognition_time = current_time
+        #     last_recognition_time = current_time
 
         await websocket.send(frame_data)
         queue.task_done()
