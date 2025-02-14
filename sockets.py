@@ -1,26 +1,8 @@
 import asyncio
-import json
-from ultralytics import YOLO
 import websockets # type: ignore
 import subprocess
 import time
 import os
-import requests
-from io import BytesIO
-import cv2
-import numpy as np
-
-from pathlib import Path
-import torch
-
-# Path to your YOLOv5 model and weights
-yolov5_repo_path = '/home/sergienko/yolov5'  # Update with the correct path to your YOLOv5 repo
-model_path = '/home/sergienko/newton_model/runs/classify/train/weights/best.pt'
-model = YOLO(model_path)
-
-# Add YOLOv5 repo to the Python path
-import sys
-sys.path.insert(0, yolov5_repo_path)
 
 camera_device = "/dev/media1"
 afterCheckTimeout = 2
@@ -141,48 +123,6 @@ async def send_frames(queue: asyncio.Queue, websocket):
 
     while True:
         frame_data = await queue.get()
-        # current_time = time.time()
-
-        # image recognition part
-        #
-        # if current_time - last_recognition_time >= recognition_interval:
-        #     try:
-        #         # Convert frame data to NumPy array
-        #         np_arr = np.frombuffer(frame_data, np.uint8)
-        #         img = cv2.imdecode(np_arr, cv2.IMREAD_COLOR)
-
-        #         # Run YOLO recognition on the decoded image
-        #         results = model(img, save=False)
-
-        #         print('recognition results', results)
-
-        #         # Process results and convert to JSON-serializable format
-        #         predictions = []
-        #         for result in results:
-        #             probs = result.probs
-        #             print('probs', probs)
-        #             if probs is not None:
-        #                 # Convert tensors to native Python types
-        #                 top1_index = probs.top1
-        #                 top1_conf = probs.top1conf.item()
-
-        #                 prediction = {
-        #                     'class': result.names[top1_index],
-        #                     'confidence': top1_conf
-        #                 }
-        #                 predictions.append(prediction)
-
-        #         json_output = json.dumps({'predictions': predictions}, indent=2)
-
-        #         await websocket.send(json_output)
-
-        #     except Exception as e:
-        #         print(f"Error during recognition: {e}")
-        #         json_output = json.dumps({'error': str(e)})
-        #         await websocket.send(json_output)
-
-        #     last_recognition_time = current_time
-
         await websocket.send(frame_data)
         queue.task_done()
 

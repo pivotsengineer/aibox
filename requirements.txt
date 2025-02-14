@@ -1,0 +1,2 @@
+ultralytics>=0.2.5
+websockets>=8.1
