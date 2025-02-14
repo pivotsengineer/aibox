@@ -42,7 +42,7 @@
 
             websocket.onclose = function(event) {
                 console.log('WebSocket connection closed', event);
-                setTimeout(connectWebSocket, 1000);
+                setTimeout(runSocket, 1000);
             };
 
             websocket.onerror = function(error) {
