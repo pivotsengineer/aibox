@@ -41,6 +41,8 @@
             console.log('Connecting to WebSocket...');
             websocket = new WebSocket('ws://192.168.0.125:8765');
 
+            websocket.binaryType = 'blob';
+
             websocket.onopen = function() {
                 console.log('WebSocket connected');
             };
@@ -57,7 +59,7 @@
             websocket.onmessage = function(event) {
                 const now = Date.now();
                 if (now - lastUpdate < minUpdateInterval) return;
-                let url = URL.createObjectURL(event.data);
+                const url = URL.createObjectURL(event.data);
                 videoFrame.src = url;
                 lastUpdate = now;
             };
