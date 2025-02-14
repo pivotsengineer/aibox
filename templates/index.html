@@ -57,31 +57,8 @@
             websocket.onmessage = function(event) {
                 const now = Date.now();
                 if (now - lastUpdate < minUpdateInterval) return;
-
-                if (typeof event.data === 'string') {
-                    try {
-                        let recognitionResults = JSON.parse(event.data);
-                        console.log(recognitionResults);
-                        resultsDiv.innerHTML = '';
-                        if (Array.isArray(recognitionResults?.predictions) && recognitionResults.predictions.length > 0) {
-                            recognitionResults.predictions.forEach(prediction => {
-                                const resultItem = document.createElement('div');
-                                resultItem.className = 'resultItem';
-                                if (prediction.confidence > 0.8) {
-                                    resultItem.innerHTML = `${prediction.class}`;
-                                    resultsDiv.appendChild(resultItem);
-                                }
-                            });
-                        } else {
-                            resultsDiv.innerHTML = 'No results found.';
-                        }
-                    } catch (e) {
-                        console.error('Error parsing JSON:', e);
-                    }
-                } else if (event.data instanceof Blob) {
-                    let url = URL.createObjectURL(event.data);
-                    videoFrame.src = url;
-                }
+                let url = URL.createObjectURL(event.data);
+                videoFrame.src = url;
                 lastUpdate = now;
             };
         }
