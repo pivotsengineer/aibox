@@ -11,19 +11,7 @@ onFrameErrorTimeout = 0.02
 bufferSize = 8
 start_index_regexp = b'\xFF\xD8'  # JPEG start marker
 end_index_regexp = b'\xFF\xD9'  # JPEG end marker
-ping_interval = 30  # Ping every 30 seconds to keep the connection alive
-recognition_interval = 1  # Time interval to send frames for recognition (in seconds)
-
-def check_and_release_camera():
-    release_camera()
-    result = subprocess.run(['lsof', camera_device], capture_output=True, text=True)
-    lines = result.stdout.strip().split('\n')
-    if len(lines) > 1:
-        for line in lines[1:]:
-            try:
-                pass
-            except Exception as e:
-                pass
+max_retries = 5  # Max retry attempts for camera restart
 
 def release_camera():
     try:
@@ -33,12 +21,14 @@ def release_camera():
             raise
     time.sleep(afterCheckTimeout)
 
-def terminateProcess(process):
+def terminate_process(process):
     if process:
         process.terminate()
         process.wait()
 
 async def capture_frames(queue: asyncio.Queue):
+    """Capture frames from libcamera-vid and put them into the queue."""
+    print("Starting frame capture...")
     command = [
         'libcamera-vid',
         '--codec', 'mjpeg',
@@ -50,91 +40,104 @@ async def capture_frames(queue: asyncio.Queue):
         '--inline',
         '-o', '-'
     ]
+
     buffer = bytearray()
-    process = None
     retry_attempts = 0
-    max_retries = 5
 
-    last_reset_time = time.time()  # Initialize the last reset timestamp
+    while retry_attempts < max_retries:
+        print(f"Attempt {retry_attempts + 1} to start libcamera-vid...")
 
-    while True:
-        current_time = time.time()
+        try:
+            release_camera()
+            process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-        # Check if enough time has passed since the last reset
-        if current_time - last_reset_time >= 1:  # 1 second interval
-            try:
-                check_and_release_camera()
-                last_reset_time = current_time  # Update the last reset timestamp
+            while process.poll() is None:  # Check if process is still running
+                chunk = process.stdout.read(chunk_size)
+                if not chunk:
+                    print("No frame data received. Retrying...")
+                    await asyncio.sleep(onFrameErrorTimeout)
+                    continue
 
-                process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                buffer.extend(chunk)
 
-                while True:
-                    chunk = process.stdout.read(chunk_size)
-                    if not chunk:
-                        return_code = process.poll()
-                        if return_code is not None:
-                            break
-                    else:
-                        buffer.extend(chunk)
+                start_index = buffer.find(start_index_regexp)
+                end_index = buffer.find(end_index_regexp)
 
-                    start_index = buffer.find(start_index_regexp)
-                    end_index = buffer.find(end_index_regexp)
+                if start_index != -1 and end_index != -1 and end_index > start_index:
+                    end_index += len(end_index_regexp)
+                    frame_data = buffer[start_index:end_index]
+                    buffer = buffer[end_index:]
 
-                    if start_index != -1 and end_index != -1 and end_index > start_index:
-                        end_index += len(end_index_regexp)
-                        frame_data = buffer[start_index:end_index]
-                        buffer = buffer[end_index:]
+                    await queue.put(frame_data)
+                    print(f"Captured frame of size: {len(frame_data)} bytes")
 
-                        await queue.put(frame_data)
+                if len(buffer) > chunk_size * 8:
+                    buffer = buffer[-chunk_size:]
 
-                    if len(buffer) > chunk_size * 8:
-                        buffer = buffer[-chunk_size:]
+        except Exception as e:
+            print(f"Error in capture_frames: {e}")
 
-            except Exception as e:
-                print(f"An error occurred: {e}")
+        finally:
+            if process:
+                process.terminate()
+                process.wait()
 
-            finally:
-                terminateProcess(process)
-                await asyncio.sleep(afterCheckTimeout)
-                retry_attempts += 1
+            retry_attempts += 1
+            await asyncio.sleep(1)  # Wait before retrying
 
-                if retry_attempts >= max_retries:
-                    print(f"Reached max retry attempts ({max_retries}). Exiting capture loop.")
-                    break
-
-                print(f"Retrying... ({retry_attempts}/{max_retries})")
-
-        else:
-            await asyncio.sleep(0.1)  # Sleep briefly before checking the reset interval again
+    print("Max retries reached. Exiting frame capture.")
 
 async def send_frames(queue: asyncio.Queue, websocket):
-    last_recognition_time = time.time()
-
-    while True:
-        frame_data = await queue.get()
-        await websocket.send(frame_data)
-        queue.task_done()
+    """Send frames from the queue to the WebSocket client."""
+    try:
+        while True:
+            frame_data = await queue.get()
+            try:
+                await websocket.send(frame_data)
+            except websockets.exceptions.ConnectionClosed:
+                print("Client disconnected while sending frames.")
+                break
+            queue.task_done()
+    except Exception as e:
+        print(f"Unexpected error in send_frames: {e}")
 
 async def ping_websocket(websocket):
+    """Send WebSocket pings to keep the connection alive."""
     while True:
         try:
             await websocket.ping()
             print("WebSocket ping sent")
-            await asyncio.sleep(ping_interval)
+            await asyncio.sleep(30)
         except Exception as e:
             print(f"Error sending WebSocket ping: {e}")
             break
 
 async def video_stream(websocket, path):
+    """Handle WebSocket connections and stream video."""
+    print(f"Client connected: {websocket.remote_address}")
+
     queue = asyncio.Queue(maxsize=bufferSize)
     producer = asyncio.create_task(capture_frames(queue))
     consumer = asyncio.create_task(send_frames(queue, websocket))
     pinger = asyncio.create_task(ping_websocket(websocket))
 
-    await asyncio.gather(producer, consumer, pinger)
+    try:
+        await asyncio.gather(producer, consumer, pinger)
+    except websockets.exceptions.ConnectionClosed:
+        print(f"Client {websocket.remote_address} disconnected.")
+    except Exception as e:
+        print(f"Unexpected error in video_stream: {e}")
+    finally:
+        print(f"Cleaning up tasks for {websocket.remote_address}")
+        producer.cancel()
+        consumer.cancel()
+        pinger.cancel()
+        await queue.join()
 
 async def main():
-    server = await websockets.serve(video_stream, '0.0.0.0', 8765)
-    await server.wait_closed()
+    """Start the WebSocket server."""
+    server = await websockets.serve(video_stream, '0.0.0.0', 8765, ping_interval=None, ping_timeout=None)
+    print("WebSocket server started on port 8765")
+    await asyncio.Future()  # Keep the server running indefinitely
 
 asyncio.run(main())
