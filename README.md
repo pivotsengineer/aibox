@@ -9,10 +9,10 @@ Description=Socket Service
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 /home/sergienko/newton/sockets.py
+ExecStart=/usr/bin/python3 /home/sergienko/aibox/sockets.py
 Restart=always
 User=sergienko
-WorkingDirectory=/home/sergienko/newton
+WorkingDirectory=/home/sergienko/aibox
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=sockets
@@ -32,13 +32,13 @@ Description=App Service
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 /home/sergienko/newton/app.py
+ExecStart=/usr/bin/python3 /home/sergienko/aibox/app.py
 Restart=always
 User=root
-WorkingDirectory=/home/sergienko/newton
+WorkingDirectory=/home/sergienko/aibox
 StandardOutput=syslog
 StandardError=syslog
-SyslogIdentifier=newton
+SyslogIdentifier=aibox
 Environment=PYTHONUNBUFFERED=1
 
 [Install]
@@ -53,21 +53,21 @@ sudo systemctl daemon-reload
 ##Enable the services to start on boot:
 ```
 sudo systemctl enable sockets.service
-sudo systemctl enable newton.service
+sudo systemctl enable aibox.service
 ```
 
 ##Start the services
 ```
 sudo systemctl start sockets.service
-sudo systemctl start newton.service
+sudo systemctl start aibox.service
 ```
 
 ##Check the Status
 ```sudo systemctl status sockets.service
-sudo systemctl status newton.service
+sudo systemctl status aibox.service
 ```
 
 ##You can view the logs for your services using journalctl
 ```sudo journalctl -u sockets.service
-sudo journalctl -u newton.service
+sudo journalctl -u aibox.service
 ```
