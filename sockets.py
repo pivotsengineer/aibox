@@ -112,7 +112,7 @@ async def ping_websocket(websocket):
             print(f"Error sending WebSocket ping: {e}")
             break
 
-async def video_stream(websocket, path):
+async def video_stream(websocket):
     """Handle WebSocket connections and stream video."""
     print(f"Client connected: {websocket.remote_address}")
 
