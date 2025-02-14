@@ -1,8 +1,7 @@
 import asyncio
-import websockets # type: ignore
 import subprocess
 import time
-import os
+import websockets
 
 camera_device = "/dev/media1"
 afterCheckTimeout = 2
@@ -21,15 +20,10 @@ def check_and_release_camera():
     lines = result.stdout.strip().split('\n')
     if len(lines) > 1:
         for line in lines[1:]:
-            parts = line.split()
-            pid = int(parts[1])
-            command = parts[0]
-            print(f"Killing process {command} with PID {pid} using {camera_device}")
             try:
-                os.kill(pid, 9)
-                time.sleep(0.5)
+                pass
             except Exception as e:
-                print(f"Error killing process {pid}: {e}")
+                pass
 
 def release_camera():
     try:
@@ -77,13 +71,8 @@ async def capture_frames(queue: asyncio.Queue):
                 while True:
                     chunk = process.stdout.read(chunk_size)
                     if not chunk:
-                        print('No frame data received')
-                        await asyncio.sleep(onFrameErrorTimeout)
                         return_code = process.poll()
                         if return_code is not None:
-                            print(f"libcamera-vid terminated with return code: {return_code}")
-                            stderr_output = process.stderr.read().decode()
-                            print(f"libcamera-vid error: {stderr_output}")
                             break
                     else:
                         buffer.extend(chunk)

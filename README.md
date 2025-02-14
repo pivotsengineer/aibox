@@ -1,3 +1,14 @@
+# dependencies
+# Update the package list
+sudo apt update && sudo apt upgrade -y
+
+# Install libcamera and dependencies
+sudo apt install -y libcamera-apps python3-websockets python3-pip lsof fuser
+
+# Install additional Python dependencies
+pip3 install websockets
+
+
 # create services
 sudo touch /etc/systemd/system/sockets.service
 
