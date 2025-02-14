@@ -5,9 +5,7 @@ import websockets
 
 camera_device = "/dev/media1"
 afterCheckTimeout = 2
-afterSendTimeout = 0.02
 chunk_size = 1024 * 4
-onFrameErrorTimeout = 0.02
 bufferSize = 8
 start_index_regexp = b'\xFF\xD8'  # JPEG start marker
 end_index_regexp = b'\xFF\xD9'  # JPEG end marker
@@ -20,11 +18,6 @@ def release_camera():
         if e.returncode != 1:
             raise
     time.sleep(afterCheckTimeout)
-
-def terminate_process(process):
-    if process:
-        process.terminate()
-        process.wait()
 
 async def capture_frames(queue: asyncio.Queue):
     """Capture frames from libcamera-vid and put them into the queue."""
@@ -51,11 +44,11 @@ async def capture_frames(queue: asyncio.Queue):
             release_camera()
             process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
-            while process.poll() is None:  # Check if process is still running
+            while process.poll() is None:
                 chunk = process.stdout.read(chunk_size)
                 if not chunk:
                     print("No frame data received. Retrying...")
-                    await asyncio.sleep(onFrameErrorTimeout)
+                    await asyncio.sleep(0.02)
                     continue
 
                 buffer.extend(chunk)
@@ -83,7 +76,7 @@ async def capture_frames(queue: asyncio.Queue):
                 process.wait()
 
             retry_attempts += 1
-            await asyncio.sleep(1)  # Wait before retrying
+            await asyncio.sleep(1)
 
     print("Max retries reached. Exiting frame capture.")
 
@@ -101,28 +94,16 @@ async def send_frames(queue: asyncio.Queue, websocket):
     except Exception as e:
         print(f"Unexpected error in send_frames: {e}")
 
-async def ping_websocket(websocket):
-    """Send WebSocket pings to keep the connection alive."""
-    while True:
-        try:
-            await websocket.ping()
-            print("WebSocket ping sent")
-            await asyncio.sleep(30)
-        except Exception as e:
-            print(f"Error sending WebSocket ping: {e}")
-            break
-
-async def video_stream(websocket):
+async def video_stream(websocket, path):
     """Handle WebSocket connections and stream video."""
     print(f"Client connected: {websocket.remote_address}")
 
     queue = asyncio.Queue(maxsize=bufferSize)
     producer = asyncio.create_task(capture_frames(queue))
     consumer = asyncio.create_task(send_frames(queue, websocket))
-    pinger = asyncio.create_task(ping_websocket(websocket))
 
     try:
-        await asyncio.gather(producer, consumer, pinger)
+        await asyncio.gather(producer, consumer)
     except websockets.exceptions.ConnectionClosed:
         print(f"Client {websocket.remote_address} disconnected.")
     except Exception as e:
@@ -131,12 +112,11 @@ async def video_stream(websocket):
         print(f"Cleaning up tasks for {websocket.remote_address}")
         producer.cancel()
         consumer.cancel()
-        pinger.cancel()
         await queue.join()
 
 async def main():
     """Start the WebSocket server."""
-    server = await websockets.serve(video_stream, '0.0.0.0', 8765, ping_interval=None, ping_timeout=None)
+    server = await websockets.serve(video_stream, '0.0.0.0', 8765, ping_interval=None, ping_timeout=None, max_size=2**23)
     print("WebSocket server started on port 8765")
     await asyncio.Future()  # Keep the server running indefinitely
 

@@ -10,6 +10,8 @@
         }
         #recognitionResults {
             position: absolute;
+            top: 10px;
+            left: 10px;
         }
         .resultItem {
             background-color: black;
@@ -22,27 +24,30 @@
     </style>
 </head>
 <body>
-    <div style="position: relative;" id="wrapper">
+    <div id="wrapper">
         <div id="recognitionResults"></div>
         <img id="videoFrame" src="" alt="Video Frame">
     </div>
-    
+
     <script>
-        const runSocket = () => {
-            console.log('runSocket start');
-            const websocket = new WebSocket('ws://192.168.0.125:8765');
-            const resultsDiv = document.getElementById("recognitionResults");
-            const videoFrame = document.getElementById('videoFrame');
-            let lastUpdate = 0;
-            const minUpdateInterval = 10;
+        let websocket;
+        let reconnectInterval = 1000;
+        let lastUpdate = 0;
+        const minUpdateInterval = 10;
+        const resultsDiv = document.getElementById("recognitionResults");
+        const videoFrame = document.getElementById('videoFrame');
+
+        function runSocket() {
+            console.log('Connecting to WebSocket...');
+            websocket = new WebSocket('ws://192.168.0.125:8765');
 
             websocket.onopen = function() {
-                console.log('WebSocket connection established');
+                console.log('WebSocket connected');
             };
 
             websocket.onclose = function(event) {
-                console.log('WebSocket connection closed', event);
-                setTimeout(runSocket, 1000);
+                console.log(`WebSocket closed. Code: ${event.code}, Reason: ${event.reason}, Clean: ${event.wasClean}`);
+                setTimeout(runSocket, reconnectInterval);
             };
 
             websocket.onerror = function(error) {
@@ -51,10 +56,8 @@
 
             websocket.onmessage = function(event) {
                 const now = Date.now();
-                if (now - lastUpdate < minUpdateInterval) {
-                    return;
-                }
-            
+                if (now - lastUpdate < minUpdateInterval) return;
+
                 if (typeof event.data === 'string') {
                     try {
                         let recognitionResults = JSON.parse(event.data);
@@ -64,7 +67,7 @@
                             recognitionResults.predictions.forEach(prediction => {
                                 const resultItem = document.createElement('div');
                                 resultItem.className = 'resultItem';
-                                if(prediction.confidence > 0.8) {
+                                if (prediction.confidence > 0.8) {
                                     resultItem.innerHTML = `${prediction.class}`;
                                     resultsDiv.appendChild(resultItem);
                                 }
@@ -75,21 +78,19 @@
                     } catch (e) {
                         console.error('Error parsing JSON:', e);
                     }
-                } else if (event.data instanceof Object) {
-                    let arrayBuffer = event.data;
-                    let blob = new Blob([arrayBuffer], { type: 'image/jpeg' });
-                    let url = URL.createObjectURL(blob);
+                } else if (event.data instanceof Blob) {
+                    let url = URL.createObjectURL(event.data);
                     videoFrame.src = url;
                 }
                 lastUpdate = now;
             };
         }
+
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('content loaded');
-            setTimeout(() => runSocket(), 1000);
+            console.log('Page loaded, initializing WebSocket...');
+            setTimeout(runSocket, 1000);
         });
 
     </script>
-    
 </body>
 </html>
