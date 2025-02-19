@@ -1,0 +1,16 @@
+[Unit]
+Description=Socket Service
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 /home/sergienko/aibox/sockets.py
+Restart=always
+User=sergienko
+WorkingDirectory=/home/sergienko/aibox
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=sockets
+Environment=PYTHONUNBUFFERED=1
+
+[Install]
+WantedBy=multi-user.target
