@@ -94,7 +94,7 @@ async def send_frames(queue: asyncio.Queue, websocket):
     except Exception as e:
         print(f"Unexpected error in send_frames: {e}")
 
-async def video_stream(websocket, path):
+async def video_stream(websocket, path=""):
     """Handle WebSocket connections and stream video."""
     print(f"Client connected: {websocket.remote_address}")
 
