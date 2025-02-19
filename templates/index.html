@@ -33,6 +33,7 @@
         let websocket;
         let reconnectInterval = 1000;
         let lastUpdate = 0;
+        
         const minUpdateInterval = 10;
         const resultsDiv = document.getElementById("recognitionResults");
         const videoFrame = document.getElementById('videoFrame');
@@ -70,6 +71,11 @@
             console.log('Page loaded, initializing WebSocket...');
             setTimeout(runSocket, 1000);
         });
+
+        // Refresh every 60 seconds
+        setTimeout(() => {
+            location.reload();
+        }, 60000);
 
     </script>
 </body>
