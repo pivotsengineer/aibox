@@ -7,7 +7,7 @@ WORKDIR /app
 # Copy the dependencies file and install requirements
 COPY web/requirements.txt requirements.txt
 COPY web/app.py app.py
-COPY web/templates/index.html index.html
+COPY web/templates/index.html templates/index.html
 
 RUN pip install -r requirements.txt
 
