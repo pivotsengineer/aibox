@@ -2,6 +2,9 @@
 FROM python:3.11-slim
 
 RUN apt-get update && apt-get install -y psmisc
+RUN apt-get update && apt-get install -y \
+    libcamera-apps \
+    libcamera-tools
 
 # Set the working directory inside the container
 WORKDIR /app
