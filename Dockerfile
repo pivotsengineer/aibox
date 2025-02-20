@@ -46,7 +46,7 @@ RUN git clone https://github.com/raspberrypi/libcamera-apps.git /libcamera-apps 
     && cd /libcamera-apps \
     && mkdir build \
     && cd build \
-    && cmake .. \
+    && cmake ../ \
     && make \
     && make install
 
@@ -60,9 +60,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application files
 COPY . .
 
-# Expose both ports
-EXPOSE 8000 
-EXPOSE 8765 
+# Expose the port for the video service
+EXPOSE 8765
 
-# Default command (this will be overridden by docker-compose)
-CMD ["python3", "app.py"]
+# Default command to run the video service
+CMD ["python3", "sockets.py"]
