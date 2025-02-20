@@ -24,14 +24,15 @@ WORKDIR /app
 
 # Copy the dependencies file and install requirements
 COPY requirements.txt requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+COPY app.py app.py
+# RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application files
 COPY . .
 
 # Expose the port for the video service
 EXPOSE 8765
-EXPOSE 8080
+EXPOSE 8000
 
 # Default command to run the video service
 CMD ["python3", "app.py"]
