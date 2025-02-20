@@ -1,7 +1,7 @@
 # Use a lightweight Python image
 FROM python:3.11-slim
 
-# Set environment variable to avoid interactive prompts
+# Set environment variables
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install system dependencies
@@ -26,8 +26,8 @@ RUN git clone --depth 1 --branch v0.0.5 https://git.libcamera.org/libcamera/libc
     && ninja -C build \
     && ninja -C build install
 
-# Clone and build libcamera-apps (use a compatible stable version)
-RUN git clone --depth 1 --branch stable-2023-09-14 https://github.com/raspberrypi/libcamera-apps.git /libcamera-apps \
+# Clone and build libcamera-apps (use latest stable commit)
+RUN git clone --depth 1 https://github.com/raspberrypi/libcamera-apps.git /libcamera-apps \
     && cd /libcamera-apps \
     && mkdir build && cd build \
     && cmake .. \
