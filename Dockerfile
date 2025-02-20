@@ -17,7 +17,7 @@ FROM balenalib/raspberry-pi-alpine-python:latest
 # RUN pip install --no-cache-dir jinja2 pyyaml ply
 
 # Clone and build libcamera (use a stable version)
-RUN apt-get install -y libcamera-apps
+RUN sudo apt-get install -y libcamera-apps
 
 # Set the working directory inside the container
 WORKDIR /app
