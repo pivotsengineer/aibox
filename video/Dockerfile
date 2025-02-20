@@ -1,5 +1,5 @@
 # Use a lightweight Python image
-FROM balenalib/raspberrypi3-python:slim
+FROM raspbian/stretch
 
 RUN apt-get update && apt-get install -y psmisc
 RUN apt-get update && apt-get install -y \
