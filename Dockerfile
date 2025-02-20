@@ -46,7 +46,7 @@ RUN git clone https://github.com/raspberrypi/libcamera-apps.git /libcamera-apps 
     && cd /libcamera-apps \
     && mkdir build \
     && cd build \
-    && cmake .. \
+    && cmake -DENABLE_DRM=1 -DENABLE_X11=1 .. \
     && make \
     && make install
 
