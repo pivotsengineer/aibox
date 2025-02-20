@@ -13,7 +13,7 @@ max_retries = 5  # Max retry attempts for camera restart
 
 def release_camera():
     try:
-        subprocess.run(['fuser', '-k', camera_device], check=True)
+        subprocess.run(['sudo', 'fuser', '-k', camera_device], check=True)
     except subprocess.CalledProcessError as e:
         if e.returncode != 1:
             raise

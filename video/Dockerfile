@@ -1,5 +1,5 @@
 # Use a lightweight Python image
-FROM python:3.11-slim
+FROM balenalib/raspberrypi3-python:slim
 
 RUN apt-get update && apt-get install -y psmisc
 RUN apt-get update && apt-get install -y \
