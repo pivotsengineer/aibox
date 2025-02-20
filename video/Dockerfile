@@ -1,6 +1,8 @@
 # Use a lightweight Python image
 FROM python:3.11-slim
 
+RUN apt-get update && apt-get install -y psmisc
+
 # Set the working directory inside the container
 WORKDIR /app
 
