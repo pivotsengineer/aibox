@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  aibox:
+  web:
     build: .
     restart: always
     volumes:
@@ -10,3 +10,13 @@ services:
       - "8765:8765"
     environment:
       - PYTHONUNBUFFERED=1
+    command: python3 app.py  # Run the web server
+
+  sockets:
+    build: .
+    restart: always
+    volumes:
+      - .:/app
+    environment:
+      - PYTHONUNBUFFERED=1
+    command: python3 sockets.py  # Run the sockets service
