@@ -1,10 +1,12 @@
 # Use a lightweight Python image
 FROM raspbian/stretch
 
+RUN echo "deb http://raspbian.raspberrypi.org/raspbian/ stretch main contrib non-free rpi" > /etc/apt/sources.list
 RUN apt-get update && apt-get install -y psmisc
 RUN apt-get update && apt-get install -y \
     libcamera-apps \
     libcamera-tools
+
 
 # Set the working directory inside the container
 WORKDIR /app
