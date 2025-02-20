@@ -20,19 +20,7 @@ RUN apt-get update && apt-get install -y \
 RUN pip install --no-cache-dir jinja2 pyyaml ply
 
 # Clone and build libcamera (use a stable version)
-RUN git clone --depth 1 --branch v0.0.5 https://git.libcamera.org/libcamera/libcamera.git /libcamera \
-    && cd /libcamera \
-    && meson build \
-    && ninja -C build \
-    && ninja -C build install
-
-# Clone and build libcamera-apps (use latest stable commit)
-RUN git clone --depth 1 https://github.com/raspberrypi/libcamera-apps.git /libcamera-apps \
-    && cd /libcamera-apps \
-    && mkdir build && cd build \
-    && cmake .. \
-    && make -j$(nproc) \
-    && make install
+RUN apt install -y libcamera-apps
 
 # Set the working directory inside the container
 WORKDIR /app
