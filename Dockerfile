@@ -1,20 +1,19 @@
+# Use a lightweight Python image
 FROM python:3.11-slim
 
-# Add Raspberry Pi OS repository and install libcamera
-RUN echo "deb http://archive.raspberrypi.org/debian bookworm main" >> /etc/apt/sources.list && \
-    apt-get update && \
-    apt-get install -y \
-    libcamera-apps \
-    psmisc \
-    && rm -rf /var/lib/apt/lists/*
-
-# Set up the application
+# Set the working directory inside the container
 WORKDIR /app
+
+# Copy the dependencies file and install requirements
 COPY requirements.txt requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the rest of the application files
 COPY . .
 
-# Expose necessary ports
-EXPOSE 8765
+# Expose both ports
+EXPOSE 8000 
+EXPOSE 8765 
 
-CMD ["python3", "sockets.py"]
+# Default command (this will be overridden by docker-compose)
+CMD ["python3", "app.py"]
