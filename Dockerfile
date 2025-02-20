@@ -44,9 +44,11 @@ RUN git clone https://git.libcamera.org/libcamera/libcamera.git /libcamera \
 # Clone and build libcamera-apps
 RUN git clone https://github.com/raspberrypi/libcamera-apps.git /libcamera-apps \
     && cd /libcamera-apps \
-    && meson build \
-    && ninja -C build \
-    && ninja -C build install
+    && mkdir build \
+    && cd build \
+    && cmake .. \
+    && make \
+    && make install
 
 # Set the working directory inside the container
 WORKDIR /app
