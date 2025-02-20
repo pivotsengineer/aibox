@@ -14,5 +14,5 @@ RUN pip install -r requirements.txt
 EXPOSE 8765
 
 # Default command to run the video service
-CMD ["python3", "app.py"]
+CMD ["python3", "sockets.py"]
 

@@ -12,7 +12,6 @@ COPY web/templates/index.html index.html
 RUN pip install -r requirements.txt
 
 # Expose the port for the video service
-EXPOSE 8765
 EXPOSE 8000
 
 # Default command to run the video service
