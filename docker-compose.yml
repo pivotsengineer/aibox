@@ -2,7 +2,8 @@ version: '3.8'
 
 services:
   web:
-    build: .
+    build:
+      dockerfile: ./web/Dockerfile
     restart: always
     volumes:
       - .:/app
@@ -10,10 +11,10 @@ services:
       - "8000:8000"  # Flask app
     environment:
       - PYTHONUNBUFFERED=1
-    command: python3 app.py  # Runs the Flask app
 
   sockets:
-    build: .
+    build:
+      dockerfile: ./video/Dockerfile
     restart: always
     volumes:
       - .:/app
@@ -21,4 +22,3 @@ services:
       - "8765:8765"  # WebSocket server
     environment:
       - PYTHONUNBUFFERED=1
-    command: python3 sockets.py  # Runs the WebSocket server
