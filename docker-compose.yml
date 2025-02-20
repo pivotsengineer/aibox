@@ -7,10 +7,10 @@ services:
     volumes:
       - .:/app
     ports:
-      - "8000:8000"  # Add this line
+      - "8000:8000"  # Flask app
     environment:
       - PYTHONUNBUFFERED=1
-    command: python3 app.py
+    command: python3 app.py  # Runs the Flask app
 
   sockets:
     build: .
@@ -18,7 +18,7 @@ services:
     volumes:
       - .:/app
     ports:
-      - "8765:8765"
+      - "8765:8765"  # WebSocket server
     environment:
       - PYTHONUNBUFFERED=1
-    command: python3 sockets.py
+    command: python3 sockets.py  # Runs the WebSocket server
