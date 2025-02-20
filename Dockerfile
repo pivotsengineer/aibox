@@ -1,6 +1,13 @@
 # Use a lightweight Python image
 FROM python:3.11-slim
 
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    libcamera-apps \
+    lsof \
+    fuser \
+    && rm -rf /var/lib/apt/lists/*
+
 # Set the working directory inside the container
 WORKDIR /app
 
@@ -17,3 +24,4 @@ EXPOSE 8765
 
 # Default command (this will be overridden by docker-compose)
 CMD ["python3", "app.py"]
+
