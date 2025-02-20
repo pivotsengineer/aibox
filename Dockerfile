@@ -14,7 +14,7 @@ FROM balenalib/raspberry-pi-alpine-python:latest
 #     && rm -rf /var/lib/apt/lists/*
 
 # Install required Python modules
-RUN pip install --no-cache-dir jinja2 pyyaml ply
+# RUN pip install --no-cache-dir jinja2 pyyaml ply
 
 # Clone and build libcamera (use a stable version)
 RUN apt-get install -y libcamera-apps
