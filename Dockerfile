@@ -1,7 +1,9 @@
 FROM python:3.11-slim
 
-# Install system dependencies, including libcamera and psmisc (for fuser)
-RUN apt-get update && apt-get install -y \
+# Add Raspberry Pi OS repository and install libcamera
+RUN echo "deb http://archive.raspberrypi.org/debian bookworm main" >> /etc/apt/sources.list && \
+    apt-get update && \
+    apt-get install -y \
     libcamera-apps \
     psmisc \
     && rm -rf /var/lib/apt/lists/*
