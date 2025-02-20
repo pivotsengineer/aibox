@@ -1,8 +1,5 @@
 # Use a lightweight Python image
-FROM python:3.11-slim
-
-# Set environment variables
-ENV DEBIAN_FRONTEND=noninteractive
+FROM balenalib/raspberry-pi-alpine-python:latest
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
