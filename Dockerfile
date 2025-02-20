@@ -31,6 +31,9 @@ RUN apt-get update && apt-get install -y \
     python3-wheel \
     && rm -rf /var/lib/apt/lists/*
 
+# Install required Python modules
+RUN pip install jinja2 pyyaml ply
+
 # Clone and build libcamera
 RUN git clone https://git.libcamera.org/libcamera/libcamera.git /libcamera \
     && cd /libcamera \
