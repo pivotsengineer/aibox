@@ -8,7 +8,7 @@ WORKDIR /app
 COPY requirements.txt requirements.txt
 COPY app.py app.py
 
-RUN python3 -m pip install ultralytics
+RUN python -m pip install ultralytics
 
 # Copy the rest of the application files
 COPY . .
