@@ -5,8 +5,8 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Copy the dependencies file and install requirements
-COPY requirements.txt requirements.txt
-COPY sockets.py sockets.py
+COPY video/requirements.txt requirements.txt
+COPY video/sockets.py sockets.py
 
 RUN pip install -r requiremets.txt
 
