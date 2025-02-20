@@ -17,7 +17,7 @@ FROM balenalib/raspberry-pi-alpine-python:latest
 # RUN pip install --no-cache-dir jinja2 pyyaml ply
 
 # Clone and build libcamera (use a stable version)
-RUN sudo apt-get install -y libcamera-apps
+# RUN sudo apt-get install -y libcamera-apps
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -31,6 +31,8 @@ COPY . .
 
 # Expose the port for the video service
 EXPOSE 8765
+EXPOSE 8080
 
 # Default command to run the video service
-CMD ["python3", "sockets.py"]
+CMD ["python3", "app.py"]
+
