@@ -8,7 +8,7 @@ WORKDIR /app
 COPY web/requirements.txt requirements.txt
 COPY web/app.py app.py
 
-RUN pip install -r requiremets.txt
+RUN pip install -r requirements.txt
 
 # Expose the port for the video service
 EXPOSE 8000
