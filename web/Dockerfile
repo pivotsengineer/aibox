@@ -5,8 +5,8 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # Copy the dependencies file and install requirements
-COPY requirements.txt requirements.txt
-COPY app.py app.py
+COPY web/requirements.txt requirements.txt
+COPY web/app.py app.py
 
 RUN pip install -r requiremets.txt
 
