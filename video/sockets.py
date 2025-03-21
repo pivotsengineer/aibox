@@ -5,7 +5,7 @@ import websockets
 import psutil
 
 camera_device = "/dev/media1"
-afterCheckTimeout = 2
+afterCheckTimeout = 3
 chunk_size = 1024 * 4
 bufferSize = 8
 start_index_regexp = b'\xFF\xD8'  # JPEG start marker
