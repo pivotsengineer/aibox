@@ -14,13 +14,22 @@ end_index_regexp = b'\xFF\xD9'  # JPEG end marker
 max_retries = 5  # Max retry attempts for camera restart
 retry_interval = 10  # Increased retry interval
 
-def is_camera_available():
+def release_camera():
     try:
-        with open(camera_device, 'r') as f:
-            return True
+        for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+            try:
+                cmdline = proc.info['cmdline']
+                if cmdline and any(camera_device in cmd for cmd in cmdline):
+                    print(f"Killing process {proc.info['pid']} using camera device")
+                    proc.kill()
+                    proc.wait(timeout=10)
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.TimeoutExpired) as e:
+                print(f"Error killing process: {e}")
+                continue
+        print("Released camera devices")
     except Exception as e:
-        print(f"Camera device not available: {e}")
-        return False
+        print(f"Error releasing camera devices: {e}")
+    time.sleep(afterCheckTimeout)
 
 async def capture_frames(queue: asyncio.Queue):
     """Capture frames from libcamera-vid and put them into the queue."""
@@ -43,14 +52,9 @@ async def capture_frames(queue: asyncio.Queue):
     while retry_attempts < max_retries:
         print(f"Attempt {retry_attempts + 1} to start libcamera-vid...")
 
-        if not is_camera_available():
-            print("Camera not available. Retrying...")
-            retry_attempts += 1
-            await asyncio.sleep(retry_interval)
-            continue
-
         process = None
         try:
+            release_camera()
             process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
             while process.poll() is None:
