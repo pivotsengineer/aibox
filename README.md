@@ -1,3 +1,7 @@
+# run from /
+
+docker-compose up
+
 # dependencies
 # Update the package list
 sudo apt update && sudo apt upgrade -y
