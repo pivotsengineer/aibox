@@ -14,6 +14,14 @@ end_index_regexp = b'\xFF\xD9'  # JPEG end marker
 max_retries = 5  # Max retry attempts for camera restart
 retry_interval = 10  # Increased retry interval
 
+def is_camera_available():
+    try:
+        with open(camera_device, 'r') as f:
+            return True
+    except Exception as e:
+        print(f"Camera device not available: {e}")
+        return False
+
 async def capture_frames(queue: asyncio.Queue):
     """Capture frames from libcamera-vid and put them into the queue."""
     print("Starting frame capture...")
@@ -34,6 +42,12 @@ async def capture_frames(queue: asyncio.Queue):
 
     while retry_attempts < max_retries:
         print(f"Attempt {retry_attempts + 1} to start libcamera-vid...")
+
+        if not is_camera_available():
+            print("Camera not available. Retrying...")
+            retry_attempts += 1
+            await asyncio.sleep(retry_interval)
+            continue
 
         process = None
         try:
