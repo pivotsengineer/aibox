@@ -20,11 +20,11 @@ def release_camera():
             try:
                 cmdline = proc.info['cmdline']
                 if cmdline and any(camera_device in cmd for cmd in cmdline):
-                    print(f"Terminating process {proc.info['pid']} using camera device")
-                    proc.terminate()
+                    print(f"Killing process {proc.info['pid']} using camera device")
+                    proc.kill()
                     proc.wait(timeout=3)
             except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.TimeoutExpired) as e:
-                print(f"Error terminating process: {e}")
+                print(f"Error killing process: {e}")
                 continue
         print("Released camera devices")
     except Exception as e:
