@@ -23,7 +23,7 @@ def release_camera():
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.TimeoutExpired) as e:
             print(f"Error terminating process: {e}")
             continue
-    time.sleep(afterCheckTimeout)
+    #time.sleep(afterCheckTimeout)
 
 async def capture_frames(queue: asyncio.Queue):
     """Capture frames from libcamera-vid and put them into the queue."""
