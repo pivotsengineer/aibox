@@ -15,10 +15,12 @@ max_retries = 5  # Max retry attempts for camera restart
 def release_camera():
     for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
         try:
-            if camera_device in proc.info['cmdline']:
+            if any(camera_device in cmd for cmd in proc.info['cmdline']):
+                print(f"Terminating process {proc.info['pid']} using camera device")
                 proc.terminate()
                 proc.wait(timeout=3)
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.TimeoutExpired):
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.TimeoutExpired) as e:
+            print(f"Error terminating process: {e}")
             continue
     time.sleep(afterCheckTimeout)
 
