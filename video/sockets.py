@@ -15,10 +15,16 @@ max_retries = 5  # Max retry attempts for camera restart
 
 def release_camera():
     try:
-        # Find and kill processes using /dev/media0
-        os.system("lsof /dev/media0 | awk 'NR>1 {print $2}' | xargs -r kill -9")
-        # Find and kill processes using /dev/media1
-        os.system("lsof /dev/media1 | awk 'NR>1 {print $2}' | xargs -r kill -9")
+        for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+            try:
+                cmdline = proc.info['cmdline']
+                if cmdline and any(camera_device in cmd for cmd in cmdline):
+                    print(f"Terminating process {proc.info['pid']} using camera device")
+                    proc.terminate()
+                    proc.wait(timeout=3)
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.TimeoutExpired) as e:
+                print(f"Error terminating process: {e}")
+                continue
         print("Released camera devices")
     except Exception as e:
         print(f"Error releasing camera devices: {e}")
