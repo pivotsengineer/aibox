@@ -43,14 +43,16 @@ async def capture_frames(queue: asyncio.Queue):
     while retry_attempts < max_retries:
         print(f"Attempt {retry_attempts + 1} to start libcamera-vid...")
 
+        process = None
         try:
-            #release_camera()
+            release_camera()
             process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
             while process.poll() is None:
                 chunk = process.stdout.read(chunk_size)
                 if not chunk:
-                    print("No frame data received. Retrying...")
+                    stderr_output = process.stderr.read().decode()
+                    print(f"No frame data received. Retrying... stderr: {stderr_output}")
                     await asyncio.sleep(0.02)
                     continue
 
