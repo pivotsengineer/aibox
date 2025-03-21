@@ -3,7 +3,6 @@ FROM arm32v7/debian:buster
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
-    psmisc \
     libcamera-apps \
     libcamera-tools \
     && rm -rf /var/lib/apt/lists/*
