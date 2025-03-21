@@ -2,6 +2,7 @@ import asyncio
 import subprocess
 import time
 import websockets
+import psutil
 
 camera_device = "/dev/media1"
 afterCheckTimeout = 2
@@ -12,11 +13,13 @@ end_index_regexp = b'\xFF\xD9'  # JPEG end marker
 max_retries = 5  # Max retry attempts for camera restart
 
 def release_camera():
-    try:
-        subprocess.run(['sudo', 'fuser', '-k', camera_device], check=True)
-    except subprocess.CalledProcessError as e:
-        if e.returncode != 1:
-            raise
+    for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+        try:
+            if camera_device in proc.info['cmdline']:
+                proc.terminate()
+                proc.wait(timeout=3)
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.TimeoutExpired):
+            continue
     time.sleep(afterCheckTimeout)
 
 async def capture_frames(queue: asyncio.Queue):

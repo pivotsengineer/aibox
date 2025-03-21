@@ -1,25 +1,24 @@
-# Use a lightweight Python image
-FROM raspbian/stretch
+# Use a Raspberry Pi OS base image
+FROM arm32v7/python:3.11-slim-buster
 
-RUN echo "deb http://raspbian.raspberrypi.org/raspbian/ stretch main contrib non-free rpi" > /etc/apt/sources.list
-RUN apt-get update && apt-get install -y psmisc
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     libcamera-apps \
-    libcamera-tools
-
+    libcamera-tools \
+    && rm -rf /var/lib/apt/lists/*
 
 # Set the working directory inside the container
 WORKDIR /app
 
 # Copy the dependencies file and install requirements
 COPY video/requirements.txt requirements.txt
-COPY video/sockets.py sockets.py
+RUN pip install --no-cache-dir -r requirements.txt
 
-RUN pip install -r requirements.txt
+# Copy the rest of the application files
+COPY video/sockets.py sockets.py
 
 # Expose the port for the video service
 EXPOSE 8765
 
 # Default command to run the video service
 CMD ["python3", "sockets.py"]
-
