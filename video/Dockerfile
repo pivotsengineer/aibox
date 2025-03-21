@@ -4,14 +4,15 @@ FROM arm64v8/debian:bookworm
 # Enable noninteractive mode
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install gnupg and other necessary packages
+# Install gnupg, wget, and other necessary packages
 RUN apt-get update && apt-get install -y \
     gnupg \
+    wget \
     && rm -rf /var/lib/apt/lists/*
 
-# Add Raspberry Pi OS repo
+# Add Raspberry Pi OS repo and fetch the GPG key
 RUN echo "deb http://archive.raspberrypi.com/debian bookworm main" > /etc/apt/sources.list.d/raspi.list \
- && apt-key adv --fetch-keys https://archive.raspberrypi.com/debian/raspberrypi.gpg.key \
+ && wget -O - https://archive.raspberrypi.com/debian/raspberrypi.gpg.key | apt-key add - \
  && apt-get update
 
 # Install libcamera and dependencies
