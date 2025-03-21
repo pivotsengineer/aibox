@@ -1,5 +1,5 @@
-# Use a Raspberry Pi OS base image
-FROM raspbian/buster
+# Use a Debian base image for ARM architecture
+FROM arm32v7/debian:buster
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
