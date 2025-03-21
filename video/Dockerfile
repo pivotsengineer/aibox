@@ -4,12 +4,13 @@ FROM arm64v8/debian:bookworm
 # Enable noninteractive mode
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install gnupg, wget, and other necessary packages
+# Install gnupg, wget, python3, python3-pip, and other necessary packages
 RUN apt-get update && apt-get install -y \
     gnupg \
     wget \
     python3 \
     python3-pip \
+    python3-venv \
     && rm -rf /var/lib/apt/lists/*
 
 # Add Raspberry Pi OS repo and fetch the GPG key
@@ -26,9 +27,10 @@ RUN apt-get install -y \
 # Set the working directory inside the container
 WORKDIR /app
 
-# Copy the dependencies file and install requirements
+# Create a virtual environment and install requirements
+RUN python3 -m venv venv
 COPY video/requirements.txt requirements.txt
-RUN python3 -m pip install --no-cache-dir -r requirements.txt
+RUN ./venv/bin/pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application files
 COPY video/sockets.py sockets.py
@@ -37,4 +39,4 @@ COPY video/sockets.py sockets.py
 EXPOSE 8765
 
 # Default command to run the video service
-CMD ["python3", "sockets.py"]
+CMD ["./venv/bin/python", "sockets.py"]
