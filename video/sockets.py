@@ -19,8 +19,23 @@ def release_camera():
             raise
     time.sleep(afterCheckTimeout)
 
+def check_camera_connection():
+    try:
+        result = subprocess.run(['libcamera-vid', '--list-cameras'], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if "No cameras available!" in result.stdout.decode():
+            print("No cameras available!")
+            return False
+        print("Camera is connected.")
+        return True
+    except subprocess.CalledProcessError as e:
+        print(f"Error checking camera connection: {e}")
+        return False
+
 async def capture_frames(queue: asyncio.Queue):
     """Capture frames from libcamera-vid and put them into the queue."""
+    if not check_camera_connection():
+        return
+
     print("Starting frame capture...")
     command = [
         'libcamera-vid',
@@ -36,6 +51,7 @@ async def capture_frames(queue: asyncio.Queue):
 
     buffer = bytearray()
     retry_attempts = 0
+    process = None  # Initialize process variable
 
     while retry_attempts < max_retries:
         print(f"Attempt {retry_attempts + 1} to start libcamera-vid...")
@@ -87,6 +103,7 @@ async def send_frames(queue: asyncio.Queue, websocket):
             frame_data = await queue.get()
             try:
                 await websocket.send(frame_data)
+                print(f"Sent frame of size: {len(frame_data)} bytes")
             except websockets.exceptions.ConnectionClosed:
                 print("Client disconnected while sending frames.")
                 break
@@ -94,7 +111,7 @@ async def send_frames(queue: asyncio.Queue, websocket):
     except Exception as e:
         print(f"Unexpected error in send_frames: {e}")
 
-async def video_stream(websocket, path=""):
+async def video_stream(websocket, path):
     """Handle WebSocket connections and stream video."""
     print(f"Client connected: {websocket.remote_address}")
 
