@@ -1,8 +1,8 @@
-# Use a Debian base image for ARM architecture
-FROM arm32v7/debian:buster
+# Use a Raspberry Pi OS base image
+FROM arm32v7/python:3.11-slim-buster
 
 # Install system dependencies
-RUN apt-get update && apt-get install -y \
+RUN sudo apt-get update && apt-get install -y \
     libcamera-apps \
     libcamera-tools \
     && rm -rf /var/lib/apt/lists/*
