@@ -44,7 +44,7 @@ async def capture_frames(queue: asyncio.Queue):
         print(f"Attempt {retry_attempts + 1} to start libcamera-vid...")
 
         try:
-            release_camera()
+            #release_camera()
             process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 
             while process.poll() is None:
