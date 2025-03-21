@@ -3,18 +3,26 @@ version: '3.8'
 services:
   web:
     build:
-      dockerfile: ./web/Dockerfile
+      context: .
+      dockerfile: web/Dockerfile
     restart: always
+    volumes:
+      - .:/app
     ports:
-      - "8000:8000"  # Flask app
+      - "8000:8000"
     environment:
       - PYTHONUNBUFFERED=1
 
-  sockets:
+  video:
     build:
-      dockerfile: ./video/Dockerfile
+      context: .
+      dockerfile: video/Dockerfile
     restart: always
+    volumes:
+      - .:/app
     ports:
-      - "8765:8765"  # WebSocket server
+      - "8765:8765"
     environment:
       - PYTHONUNBUFFERED=1
+    depends_on:
+      - web
