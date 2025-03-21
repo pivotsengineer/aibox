@@ -3,10 +3,14 @@ Description=Aibox Service
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/docker-compose -f /home/sergienko/aibox/docker-compose.yml up
-WorkingDirectory=/home/sergienko/aibox
+ExecStart=/usr/bin/python3 /home/sergienko/aibox/aibox.py
 Restart=always
 User=sergienko
+WorkingDirectory=/home/sergienko/aibox
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=aibox
+Environment=PYTHONUNBUFFERED=1
 
 [Install]
 WantedBy=multi-user.target

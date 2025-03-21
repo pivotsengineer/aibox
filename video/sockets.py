@@ -2,8 +2,6 @@ import asyncio
 import subprocess
 import time
 import websockets
-import psutil
-import os
 
 camera_device = "/dev/media1"
 afterCheckTimeout = 2
@@ -16,19 +14,10 @@ retry_interval = 10  # Increased retry interval
 
 def release_camera():
     try:
-        for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
-            try:
-                cmdline = proc.info['cmdline']
-                if cmdline and any(camera_device in cmd for cmd in cmdline):
-                    print(f"Killing process {proc.info['pid']} using camera device")
-                    proc.kill()
-                    proc.wait(timeout=10)
-            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.TimeoutExpired) as e:
-                print(f"Error killing process: {e}")
-                continue
-        print("Released camera devices")
-    except Exception as e:
-        print(f"Error releasing camera devices: {e}")
+        subprocess.run(['sudo', 'fuser', '-k', camera_device], check=True)
+    except subprocess.CalledProcessError as e:
+        if e.returncode != 1:
+            raise
     time.sleep(afterCheckTimeout)
 
 async def capture_frames(queue: asyncio.Queue):
