@@ -1,5 +1,4 @@
-# Use a Raspberry Pi OS base image
-FROM arm32v7/python:3.11-slim-buster
+FROM debian:bookworm
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
