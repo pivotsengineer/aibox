@@ -1,9 +1,9 @@
-import os
 import asyncio
 import subprocess
 import time
 import websockets
 import psutil
+import os
 
 camera_device = "/dev/media1"
 afterCheckTimeout = 2
@@ -12,13 +12,20 @@ bufferSize = 8
 start_index_regexp = b'\xFF\xD8'  # JPEG start marker
 end_index_regexp = b'\xFF\xD9'  # JPEG end marker
 max_retries = 5  # Max retry attempts for camera restart
+retry_interval = 5  # Increased retry interval
 
 def release_camera():
     try:
-        # Find and kill processes using /dev/media0
-        os.system("lsof /dev/media0 | awk 'NR>1 {print $2}' | xargs -r kill -9")
-        # Find and kill processes using /dev/media1
-        os.system("lsof /dev/media1 | awk 'NR>1 {print $2}' | xargs -r kill -9")
+        for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+            try:
+                cmdline = proc.info['cmdline']
+                if cmdline and any(camera_device in cmd for cmd in cmdline):
+                    print(f"Terminating process {proc.info['pid']} using camera device")
+                    proc.terminate()
+                    proc.wait(timeout=3)
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.TimeoutExpired) as e:
+                print(f"Error terminating process: {e}")
+                continue
         print("Released camera devices")
     except Exception as e:
         print(f"Error releasing camera devices: {e}")
@@ -83,7 +90,7 @@ async def capture_frames(queue: asyncio.Queue):
                 process.wait()
 
             retry_attempts += 1
-            await asyncio.sleep(1)
+            await asyncio.sleep(retry_interval)
 
     print("Max retries reached. Exiting frame capture.")
 
