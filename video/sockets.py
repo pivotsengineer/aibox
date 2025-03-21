@@ -1,3 +1,4 @@
+import os
 import asyncio
 import subprocess
 import time
@@ -5,7 +6,7 @@ import websockets
 import psutil
 
 camera_device = "/dev/media1"
-afterCheckTimeout = 3
+afterCheckTimeout = 2
 chunk_size = 1024 * 4
 bufferSize = 8
 start_index_regexp = b'\xFF\xD8'  # JPEG start marker
@@ -13,17 +14,15 @@ end_index_regexp = b'\xFF\xD9'  # JPEG end marker
 max_retries = 5  # Max retry attempts for camera restart
 
 def release_camera():
-    for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
-        try:
-            cmdline = proc.info['cmdline']
-            if cmdline and any(camera_device in cmd for cmd in cmdline):
-                print(f"Terminating process {proc.info['pid']} using camera device")
-                proc.terminate()
-                proc.wait(timeout=3)
-        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.TimeoutExpired) as e:
-            print(f"Error terminating process: {e}")
-            continue
-    #time.sleep(afterCheckTimeout)
+    try:
+        # Find and kill processes using /dev/media0
+        os.system("lsof /dev/media0 | awk 'NR>1 {print $2}' | xargs -r kill -9")
+        # Find and kill processes using /dev/media1
+        os.system("lsof /dev/media1 | awk 'NR>1 {print $2}' | xargs -r kill -9")
+        print("Released camera devices")
+    except Exception as e:
+        print(f"Error releasing camera devices: {e}")
+    time.sleep(afterCheckTimeout)
 
 async def capture_frames(queue: asyncio.Queue):
     """Capture frames from libcamera-vid and put them into the queue."""
