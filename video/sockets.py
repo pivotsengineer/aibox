@@ -12,7 +12,7 @@ bufferSize = 8
 start_index_regexp = b'\xFF\xD8'  # JPEG start marker
 end_index_regexp = b'\xFF\xD9'  # JPEG end marker
 max_retries = 5  # Max retry attempts for camera restart
-retry_interval = 5  # Increased retry interval
+retry_interval = 10  # Increased retry interval
 
 def release_camera():
     try:
