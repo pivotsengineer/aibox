@@ -44,15 +44,16 @@
 </head>
 <body>
     <div id="wrapper">
-        <img id="spinner" src="spinner.gif" alt="Loading...">
+        <img id="spinner" src="spinner.gif" alt="Loading..." />
         <div id="recognitionResults"></div>
-        <img id="videoFrame" src="" alt="Video Frame" style="width: 100%;">
+        <img id="videoFrame" src="" alt="Video Frame" />
     </div>
 
     <script>
         let websocket;
         let reconnectInterval = 1000;
         let lastUpdate = 0;
+        let firstMessageFlag = false;
         
         const minUpdateInterval = 10;
         const resultsDiv = document.getElementById("recognitionResults");
@@ -84,13 +85,15 @@
                 const url = URL.createObjectURL(event.data);
                 videoFrame.src = url;
                 lastUpdate = now;
+                if(!firstMessageFlag) {
+                    firstMessageFlag = true;
+                    videoFrame.style.display = 'block'; // Show the video frame after the first message
+                    spinner.style.display = 'none'; // Hide the spinner
+                }
             };
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            console.log(DOMContentLoaded);
-            spinner.style.display = 'none';
-            videoFrame.style.display = 'block';
             console.log('Page loaded, initializing WebSocket...');
             setTimeout(runSocket, 1000);
         });
