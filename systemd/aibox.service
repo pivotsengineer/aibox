@@ -3,14 +3,14 @@ Description=Aibox Service
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 /home/sergienko/aibox/aibox.py
+ExecStart=/home/ssergienko/aibox/venv/bin/python3 /home/ssergienko/aibox/web/app.py
 Restart=always
-User=sergienko
-WorkingDirectory=/home/sergienko/aibox
-StandardOutput=syslog
-StandardError=syslog
+User=ssergienko
+WorkingDirectory=/home/ssergienko/aibox/web
 SyslogIdentifier=aibox
 Environment=PYTHONUNBUFFERED=1
+StandardOutput=file:/home/ssergienko/aibox/aibox.log
+StandardError=file:/home/ssergienko/aibox/aibox_error.log
 
 [Install]
 WantedBy=multi-user.target

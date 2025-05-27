@@ -24,10 +24,10 @@ Description=Socket Service
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 /home/sergienko/aibox/sockets.py
+ExecStart=/usr/bin/python3 /home/ssergienko/aibox/sockets.py
 Restart=always
-User=sergienko
-WorkingDirectory=/home/sergienko/aibox
+User=ssergienko
+WorkingDirectory=/home/ssergienko/aibox
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=sockets
@@ -47,10 +47,10 @@ Description=App Service
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 /home/sergienko/aibox/app.py
+ExecStart=/usr/bin/python3 /home/ssergienko/aibox/app.py
 Restart=always
 User=root
-WorkingDirectory=/home/sergienko/aibox
+WorkingDirectory=/home/ssergienko/aibox
 StandardOutput=syslog
 StandardError=syslog
 SyslogIdentifier=aibox

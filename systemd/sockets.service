@@ -3,14 +3,14 @@ Description=Socket Service
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/python3 /home/sergienko/aibox/sockets.py
+ExecStart=/home/ssergienko/aibox/venv/bin/python3 /home/ssergienko/aibox/video/sockets.py
 Restart=always
-User=sergienko
-WorkingDirectory=/home/sergienko/aibox
-StandardOutput=syslog
-StandardError=syslog
+User=ssergienko
+WorkingDirectory=/home/ssergienko/aibox/video
+StandardOutput=file:/home/ssergienko/aibox/aibox.log
+StandardError=file:/home/ssergienko/aibox/aibox_error.log
 SyslogIdentifier=sockets
-Environment=PYTHONUNBUFFERED=1
+Environment=PYTHONUNBUFFERED=
 
 [Install]
 WantedBy=multi-user.target
