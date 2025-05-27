@@ -5,7 +5,7 @@ import websockets
 from ultralytics import YOLO  # Import YOLO
 
 # Load the YOLO model (replace 'yolov5s.pt' with your model path)
-yolo_model = YOLO('yolov8n-cls.pt')
+yolo_model = YOLO('../yolov8n-cls.pt')
 camera_device = "/dev/media1"
 afterCheckTimeout = 2
 chunk_size = 1024 * 4
