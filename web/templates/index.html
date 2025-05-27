@@ -60,6 +60,7 @@
             websocket.onmessage = function(event) {
                 const now = Date.now();
                 if (now - lastUpdate < minUpdateInterval) return;
+                console.log('event.data: ', event.data);
                 const url = URL.createObjectURL(event.data);
                 console.log(url);
                 videoFrame.src = url;

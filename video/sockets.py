@@ -2,7 +2,9 @@ import asyncio
 import subprocess
 import time
 import websockets
+from ultralytics import YOLO
 
+yolo_model = YOLO('yolov5s.pt')
 camera_device = "/dev/media1"
 afterCheckTimeout = 2
 chunk_size = 1024 * 4
@@ -64,7 +66,12 @@ async def capture_frames(queue: asyncio.Queue):
                     frame_data = buffer[start_index:end_index]
                     buffer = buffer[end_index:]
 
-                    await queue.put(frame_data)
+                    # Run YOLO detection
+                    results = yolo_model(frame_data)  # Pass the frame to YOLO
+                    detections = results.pandas().xyxy[0].to_dict(orient="records")  # Convert results to a dictionary
+
+                    await queue.put({"frame": frame_data, "detections": detections})
+
                     print(f"Captured frame of size: {len(frame_data)} bytes")
 
                 if len(buffer) > chunk_size * 8:
