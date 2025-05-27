@@ -81,7 +81,7 @@ async def capture_frames(queue: asyncio.Queue):
 
                         # Add the frame and detections to the queue
                         await queue.put({"frame": frame_data, "detections": detections})
-                        print(f"Captured frame of size: {len(frame_data)} bytes with detections: {detections}")
+                        print(f"Captured frame of size: {len(frame_data)} bytes")
                     except Exception as e:
                         print(f"Error decoding or processing frame: {e}")
 
