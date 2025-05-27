@@ -62,22 +62,6 @@ async def capture_frames(queue: asyncio.Queue):
 
                 buffer.extend(chunk)
 
-                # Decode the JPEG frame
-                try:
-                    image = Image.open(io.BytesIO(frame_data))
-                    image_np = np.array(image)  # Convert to NumPy array
-
-                    # Run YOLO classification
-                    results = yolo_model(image_np)  # Pass the frame to YOLO
-                    print(results);
-                    detections = [{"name": result[0], "confidence": result[1]} for result in results]  # Process results
-
-                    # Add the frame and detections to the queue
-                    await queue.put({"frame": frame_data, "detections": detections})
-                    print(f"Captured frame of size: {len(frame_data)} bytes with detections: {detections}")
-                except Exception as e:
-                    print(f"Error decoding or processing frame: {e}")
-
                 start_index = buffer.find(start_index_regexp)
                 end_index = buffer.find(end_index_regexp)
 
@@ -86,8 +70,20 @@ async def capture_frames(queue: asyncio.Queue):
                     frame_data = buffer[start_index:end_index]
                     buffer = buffer[end_index:]
 
-                    await queue.put({"frame": frame_data, "detections": detections})
-                    print(f"Captured frame of size: {len(frame_data)} bytes")
+                    # Decode the JPEG frame
+                    try:
+                        image = Image.open(io.BytesIO(frame_data))
+                        image_np = np.array(image)  # Convert to NumPy array
+
+                        # Run YOLO classification
+                        results = yolo_model(image_np)  # Pass the frame to YOLO
+                        detections = [{"name": result[0], "confidence": result[1]} for result in results]  # Process results
+
+                        # Add the frame and detections to the queue
+                        await queue.put({"frame": frame_data, "detections": detections})
+                        print(f"Captured frame of size: {len(frame_data)} bytes with detections: {detections}")
+                    except Exception as e:
+                        print(f"Error decoding or processing frame: {e}")
 
                 if len(buffer) > chunk_size * 8:
                     buffer = buffer[-chunk_size:]
