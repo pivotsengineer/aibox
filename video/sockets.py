@@ -67,9 +67,10 @@ async def capture_frames(queue: asyncio.Queue):
                     image = Image.open(io.BytesIO(frame_data))
                     image_np = np.array(image)  # Convert to NumPy array
 
-                    # Run YOLO detection
+                    # Run YOLO classification
                     results = yolo_model(image_np)  # Pass the frame to YOLO
-                    detections = results.pandas().xyxy[0].to_dict(orient="records")  # Convert results to a dictionary
+                    print(results);
+                    detections = [{"name": result[0], "confidence": result[1]} for result in results]  # Process results
 
                     # Add the frame and detections to the queue
                     await queue.put({"frame": frame_data, "detections": detections})
