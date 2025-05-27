@@ -3,6 +3,9 @@ import subprocess
 import time
 import websockets
 from ultralytics import YOLO  # Import YOLO
+from PIL import Image
+import io
+import numpy as np
 
 # Load the YOLO model (replace 'yolov5s.pt' with your model path)
 yolo_model = YOLO('../yolov8n-cls.pt')
