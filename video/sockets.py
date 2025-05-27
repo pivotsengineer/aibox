@@ -2,13 +2,7 @@ import asyncio
 import subprocess
 import time
 import websockets
-from ultralytics import YOLO  # Import YOLO
-from PIL import Image
-import io
-import numpy as np
 
-# Load the YOLO model (replace 'yolov5s.pt' with your model path)
-yolo_model = YOLO('../yolov8n-cls.pt')
 camera_device = "/dev/media1"
 afterCheckTimeout = 2
 chunk_size = 1024 * 4
@@ -43,8 +37,6 @@ async def capture_frames(queue: asyncio.Queue):
 
     buffer = bytearray()
     retry_attempts = 0
-    last_recognition_time = 0  # Track the last time recognition was run
-    recognition_interval = 1  # Run recognition once per second
 
     while retry_attempts < max_retries:
         print(f"Attempt {retry_attempts + 1} to start libcamera-vid...")
@@ -72,25 +64,8 @@ async def capture_frames(queue: asyncio.Queue):
                     frame_data = buffer[start_index:end_index]
                     buffer = buffer[end_index:]
 
-                    # Check if it's time to run recognition
-                    current_time = time.time()
-                    if current_time - last_recognition_time >= recognition_interval:
-                        last_recognition_time = current_time
-
-                        # Decode the JPEG frame
-                        try:
-                            image = Image.open(io.BytesIO(frame_data))
-                            image_np = np.array(image)  # Convert to NumPy array
-
-                            # Run YOLO classification
-                            results = yolo_model(image_np)  # Pass the frame to YOLO
-                            detections = [{"name": result[0], "confidence": result[1]} for result in results]  # Process results
-
-                            # Add the frame and detections to the queue
-                            await queue.put({"frame": frame_data, "detections": detections})
-                            print(f"Captured frame of size: {len(frame_data)} bytes")
-                        except Exception as e:
-                            print(f"Error decoding or processing frame: {e}")
+                    await queue.put(frame_data)
+                    print(f"Captured frame of size: {len(frame_data)} bytes")
 
                 if len(buffer) > chunk_size * 8:
                     buffer = buffer[-chunk_size:]
