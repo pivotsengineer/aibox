@@ -85,7 +85,7 @@ async def capture_frames(queue: asyncio.Queue):
                     frame_data = buffer[start_index:end_index]
                     buffer = buffer[end_index:]
 
-                    await queue.put(frame_data)
+                    await queue.put({"frame": frame_data, "detections": detections})
                     print(f"Captured frame of size: {len(frame_data)} bytes")
 
                 if len(buffer) > chunk_size * 8:
